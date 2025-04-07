@@ -24,7 +24,7 @@ k_height = 5
 max_slider = 10
 
 # Read Image
-image = cv2.imread(r'track.png')
+image = cv2.imread(r'test2.png')
 # Resize width=500 height=300 incase of inputting raspi captured image
 image = cv2.resize(image,(r_width,r_height))
 frame_HSV = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)

@@ -3,7 +3,7 @@ import cv2 as cv2
 import threading
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 threshold1 = 85
 threshold2 = 85
 theta=0
