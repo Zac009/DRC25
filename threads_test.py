@@ -12,7 +12,7 @@ class Application:
         # Create a label to display the OpenCV frame
         self.label = tk.Label(window)
         self.label.pack()
-
+        
         # Create a queue for frame data to pass between threads
         self.queue = queue.Queue()
 

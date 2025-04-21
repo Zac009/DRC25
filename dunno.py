@@ -36,58 +36,86 @@ def get_perpendicular_scan(start_point, direction, length=50):
     right = (int(start_point[0] - perp[0] * length), int(start_point[1] - perp[1] * length))
     return left, right
 
-def adaptive_centerline(mask_yellow, mask_blue, num_steps=28, step_size=10):
+def rotate_direction(direction, angle_degrees):
+    angle_rad = math.radians(angle_degrees)
+    dx, dy = direction
+
+    # Rotation matrix
+    cos_theta = math.cos(angle_rad)
+    sin_theta = math.sin(angle_rad)
+
+    dx_rot = dx * cos_theta - dy * sin_theta
+    dy_rot = dx * sin_theta + dy * cos_theta
+
+    return (dx_rot, dy_rot)
+
+def adaptive_centerline(mask_yellow, mask_blue, num_steps=10000, step_size=5):
     h, w = mask_yellow.shape
     center_points = []
-
-    position = (250, 250)
+    se = 250
+    position = (250, se)
     direction = get_initial_heading()
 
-    vals = [10,290,490,290]
+    vals = [10, 290, 490, 290]
     scan_mask = np.zeros_like(mask_yellow)
-    previous_midpoint = position  # Initialize previous midpoint to start position
-    
+    midpoint_old = None
+
     for _ in range(num_steps):
+        # Get the current midpoint (which we want to track)
         left_pt, right_pt = get_perpendicular_scan(position, direction, length=200)
-        # Create scanline as a mask
+
+        # Calculate the midpoint as the center of the line
+        left_pt_x, left_pt_y = left_pt
+        right_pt_x, right_pt_y = right_pt
+        midpoint_x = (left_pt_x + right_pt_x) // 2
+        midpoint_y = (left_pt_y + right_pt_y) // 2
+        midpoint = (midpoint_x, midpoint_y)
+
+        # Use the midpoint to update the scanline and direction
+        if midpoint_old is not None:
+            dx = midpoint_x - midpoint_old[0]
+            dy = midpoint_y - midpoint_old[1]
+
+            # Calculate the angle in radians
+            angle_rad = math.atan2(dy, dx)
+            angle_rad = -angle_rad  # Flip angle to match your coordinate system
+            direction = rotate_direction(direction, angle_rad)
+            position = (midpoint[0], midpoint_y)  # Update position based on the midpoint
+
+        # Update the scanline on the scan_mask
         cv2.line(scan_mask, left_pt, right_pt, 255, 1)
-        cv2.imshow("Adaptive Pathing", scan_mask)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        # Mask and get pixel hits
+
+        # Check for intersections with the yellow and blue masks
         yellow_hits = cv2.bitwise_and(mask_yellow, scan_mask)
         blue_hits = cv2.bitwise_and(mask_blue, scan_mask)
 
         yellow_coords = cv2.findNonZero(yellow_hits)
         blue_coords = cv2.findNonZero(blue_hits)
+
         if yellow_coords is not None and blue_coords is not None:
             yellow_mean = np.mean(yellow_coords, axis=0)[0]
             blue_mean = np.mean(blue_coords, axis=0)[0]
 
-            # Midpoint
+            # Update the midpoint
             midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
             midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
             midpoint = (midpoint_x, midpoint_y)
             cv2.circle(combined_mask, midpoint, 3, (255, 255, 255), -1)
 
-            # Update heading based on previous midpoint
-            dx = midpoint[0] - previous_midpoint[0]
-            dy = midpoint[1] - previous_midpoint[1]
-            norm = math.hypot(dx, dy)
-            if norm > 0:
-                direction = (dx / norm, dy / norm)
+        # Move the scanning line down (based on your step_size)
+        se -= step_size
 
-            # Move along the updated heading (parallel direction)
-            position = (
-                int(midpoint[0] + direction[0] * step_size),
-                int(midpoint[1] + direction[1] * step_size)
-            )
-            previous_midpoint = midpoint  # Update previous midpoint
-        else:
-            print("Woah")
+        # Visualize the scanmask and combined mask
+        cv2.namedWindow("Window 2", cv2.WINDOW_NORMAL)
+        cv2.moveWindow("Window 2", 500, 500)
+        cv2.imshow("Window 2", scan_mask)
+        cv2.imshow("Combined Pathing", combined_mask)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-        vals[1] -= step_size
-        vals[3] -= step_size
+        midpoint_old = midpoint
+
+path_points = adaptive_centerline(yellow_mask, blue_mask)
 
 
 path_points = adaptive_centerline(yellow_mask, blue_mask)

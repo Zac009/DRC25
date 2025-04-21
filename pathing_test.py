@@ -49,24 +49,23 @@ def rotate_direction(direction, angle_degrees):
 
     return (dx_rot, dy_rot)
 
-def adaptive_centerline(mask_yellow, mask_blue, num_steps=10000, step_size=28):
+def adaptive_centerline(mask_yellow, mask_blue, num_steps=23, step_size=10):
     h, w = mask_yellow.shape
     center_points = []
     se = 250
     position = (250, se)
     direction = get_initial_heading()
 
-    vals = [10,290,490,290]
-    scan_mask = np.zeros_like(mask_yellow)
     midpoint_old = None
     for _ in range(num_steps):
-        left_pt, right_pt = get_perpendicular_scan(position, direction, length=200)
+        scan_mask = np.zeros_like(combined_mask)
+        left_pt, right_pt = get_perpendicular_scan(position, direction, length=300)
         """print(f"Left point {left_pt}")
         print(f"Right point {right_pt}")"""
         # Create scanline as a mask
         #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
         cv2.line(scan_mask, left_pt, right_pt, 255, 1)
-        cv2.line(combined_mask, left_pt, right_pt, 255, 1)
+        #cv2.line(combined_mask, left_pt, right_pt, 255, 1)
         # Mask and get pixel hits
         yellow_hits = cv2.bitwise_and(mask_yellow, scan_mask)
         blue_hits = cv2.bitwise_and(mask_blue, scan_mask)
@@ -81,6 +80,7 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=10000, step_size=28):
             midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
             midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
             midpoint = (midpoint_x, midpoint_y)
+            center_points.append(midpoint)
             if midpoint_old is not None:
                 dx = midpoint[0] - midpoint_old[0]
                 dy = midpoint[1] - midpoint_old[1]
@@ -89,21 +89,20 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=10000, step_size=28):
                 angle_rad = math.atan2(dy, dx)
                 angle_rad = -angle_rad
                 direction = rotate_direction(direction, angle_rad)
-                position = (midpoint[0], midpoint[1]-10)
+                se -= step_size
+                position = (midpoint[0], se)
             else:
-                #se -= step_size
-                position = (250, se)
+                se -= step_size
+                position = (midpoint[0], se)
             midpoint_old = midpoint
-            cv2.circle(combined_mask, midpoint, 3, (255, 255, 255), -1)
-
+            #cv2.circle(combined_mask, midpoint, 3, (255, 255, 255), -1)
+            #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
+            #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
         else:
             print("Woah")
 
-        
-
-        vals[1] -= step_size
-        vals[3] -= step_size
-
+        pts = np.array(center_points, dtype=np.int32).reshape((-1, 1, 2))
+        cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
         cv2.namedWindow("Window 2", cv2.WINDOW_NORMAL)
         cv2.moveWindow("Window 2", 500, 500)
         cv2.imshow("Window 2", scan_mask)
