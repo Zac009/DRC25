@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv2
 import math
+from scipy.signal import savgol_filter
 
 """
 Ideas to fix:
@@ -112,6 +113,15 @@ def track_frame_motion(prev, gray):
     dy*=5 # This gives you the average displacement
     return dx, dy
 
+def smooth_path(points, window_size=9, poly_order=2):
+    if len(points) < window_size:
+        return points
+    xs = np.array([p[0] for p in points])
+    ys = np.array([p[1] for p in points])
+    xs_smooth = savgol_filter(xs, window_size, poly_order)
+    ys_smooth = savgol_filter(ys, window_size, poly_order)
+    return list(zip(xs_smooth.astype(int), ys_smooth.astype(int)))
+
 def detect_box(hit_mask):
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_purple = np.array([120, 70, 70])   # H, S, V
@@ -191,7 +201,8 @@ while True:
     yellow_hits = cv2.bitwise_and(yellow_mask, scan_mask)
     blue_hits = cv2.bitwise_and(blue_mask, scan_mask)
     path_points = adaptive_centerline(yellow_mask, blue_mask)
-    pts = np.array(center_points, dtype=np.int32).reshape((-1, 1, 2))
+    smoothed_points = smooth_path(center_points)
+    pts = np.array(smoothed_points, dtype=np.int32).reshape((-1, 1, 2))
     cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
     frame_count += 1
     cv2.imshow('FINAL', combined_mask)

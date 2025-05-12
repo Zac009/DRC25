@@ -1,32 +1,33 @@
 import numpy as np
 import cv2 as cv
  
-cap = cv.VideoCapture(0)
+cap = cv.VideoCapture(1)
+ 
 # Define the codec and create VideoWriter object
 fourcc = cv.VideoWriter_fourcc(*'XVID')
-out = cv.VideoWriter('output1.avi', fourcc, 20.0, (640,  480))
-if not cap.isOpened():
-    print("Cannot open camera")
-    exit()
-while True:
-    # Capture frame-by-frame
-    ret, frame = cap.read()
+ret, frame = cap.read()
+height, width = frame.shape[:2]
+out = cv.VideoWriter('output20.avi', fourcc, 20.0, (width, height))
  
-    # if frame is read correctly ret is True
+while cap.isOpened():
+    if not out.isOpened():
+        print("VideoWriter failed to open")
+        exit()
+    ret, frame = cap.read()
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
-        break 
-    # write the flipped frame
-    out.write(frame)
+        break
+    frame = cv.flip(frame, 0)
  
-    # Our operations on the frame come here
+    # Convert to grayscale and back to BGR
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-    # Display the resulting frame
-    cv.imshow('frame', gray)
+    gray_bgr = cv.cvtColor(gray, cv.COLOR_GRAY2BGR)
+    out.write(gray_bgr)
+ 
+    cv.imshow('frame', frame)
     if cv.waitKey(1) == ord('q'):
         break
  
-# When everything done, release the capture
 cap.release()
 out.release()
 cv.destroyAllWindows()
