@@ -49,7 +49,7 @@ def movement(num):
     pass
 
 def yellow_det(mask):
-    lower_yellow = np.array([30,50,100])
+    lower_yellow = np.array([25,50,100]) #Was 30
     upper_yellow = np.array([50,255,255])
     yellow_mask = cv2.inRange(frame_HSV, lower_yellow, upper_yellow)
     return yellow_mask
@@ -80,7 +80,7 @@ def calculate_angle(mid):
 
 def check_green(mid):
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    lower_green = np.array([35, 100, 100])
+    lower_green = np.array([30, 70, 100])
     upper_green = np.array([85, 255, 255])
     green_mask = cv2.inRange(frame_HSV, lower_green, upper_green)
     final_mask = np.zeros_like(green_mask)
