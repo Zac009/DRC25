@@ -17,7 +17,6 @@ center_points = []
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 ret, frame = cap.read()
 height, width = frame.shape[:2]
-print(width)
 out = cv2.VideoWriter('output20.avi', fourcc, 20.0, (width, height))
 threshold1 = 85
 threshold2 = 85
@@ -26,17 +25,35 @@ r_height = 300
 prev_gray = None
 prev_points = None
 
+def yellow_det(mask):
+    lower_yellow = np.array([30,50,100])
+    upper_yellow = np.array([50,255,255])
+    yellow_mask = cv2.inRange(frame_HSV, lower_yellow, upper_yellow)
+    return yellow_mask
+
+def blue_det(mask):
+    lower_blue = np.array([100,50,120])
+    upper_blue = np.array([150,255,255])
+    blue_mask = cv2.inRange(frame_HSV, lower_blue, upper_blue)
+    return blue_mask
+
 def calculate_angle(mid):
-    temp = width/2
-    w = abs(mid[0]-temp)
-    temp = height/2
-    h = abs(mid[1]-temp)
-    ang = math.atan(h/w)
-    ang = math.degrees(ang)
+    temp1 = width/2
+    w = abs(mid[0]-temp1)
+    temp2 = height
+    h = abs(mid[1]-temp2)
+    """print(f"This is the height: {mid[0]}, and this is the width {mid[1]}")
+    print(f"This is the height: {temp1}, and this is the width {temp2}")
+    print(f"This is the result: {h}, and this is the result {w}")"""
+    try:
+        ang = math.atan(h/w)
+        ang = math.degrees(ang)
+    except ZeroDivisionError:
+        ang = 90
     if mid[0] > width/2:
-        ang += 90
+        ang = 180-ang
     pulse = 1000 + (ang / 180.0) * 1000
-    print(pulse)
+    return pulse
 
 def check_green(mid):
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -82,8 +99,6 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
     midpoint_old = None
     for _ in range(num_steps):
         left_pt, right_pt = get_perpendicular_scan(position, direction, length=350)
-        """print(f"Left point {left_pt}")
-        print(f"Right point {right_pt}")"""
         # Create scanline as a mask
         #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
         cv2.line(scan_mask, left_pt, right_pt, 255, 1)
@@ -102,7 +117,6 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
             midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
             midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
             midpoint = (midpoint_x, midpoint_y)
-            print(midpoint)
             check_green(midpoint)
             center_points.append(midpoint)
             if midpoint_old is not None:
@@ -126,12 +140,8 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
 
         else:
             pass
-    """cv2.imshow('frame', mix_mask)
-    cv2.moveWindow("frame", 700, 0)"""
-    """cv2.imshow('frame2', frame)
-    cv2.moveWindow("frame2", 700, 500)"""
     calculate_angle(midpoint)
-    return scan_mask
+    return scan_mask, mix_mask
 
 def track_frame_motion(prev, gray):
     flow = cv2.calcOpticalFlowFarneback(prev, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -178,10 +188,6 @@ def detect_box(hit_mask):
             # Visualize
             cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
             final = cv2.bitwise_or(final,final_final)
-    """cv2.imshow('scan', final)
-    cv2.moveWindow("scan", 0, 500)
-    cv2.imshow('frame', purple_mask)
-    cv2.moveWindow("frame", 700, 0)"""
     return final
 
 if not cap.isOpened():
@@ -189,23 +195,14 @@ if not cap.isOpened():
     exit()
 
 while True:
-    # Capture frame-by-frame
     ret, frame = cap.read()
  
-    # if frame is read correctly ret is True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         break 
-    # write the flipped frame
-    # Convert to HSV and create masks
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-    lower_blue = np.array([100,50,120])
-    upper_blue = np.array([150,255,255])
-    lower_yellow = np.array([30,50,100])
-    upper_yellow = np.array([50,255,255])
-    yellow_mask = cv2.inRange(frame_HSV, lower_yellow, upper_yellow)
-    blue_mask = cv2.inRange(frame_HSV, lower_blue, upper_blue)
+    yellow_mask = yellow_det(frame_HSV)
+    blue_mask = blue_det(frame_HSV)
 
     # Optional: just to visualize
     combined_mask = cv2.add(yellow_mask, blue_mask)
@@ -219,12 +216,18 @@ while True:
 
     yellow_hits = cv2.bitwise_and(yellow_mask, scan_mask)
     blue_hits = cv2.bitwise_and(blue_mask, scan_mask)
-    path_points = adaptive_centerline(yellow_mask, blue_mask)
+    path_points, mask3 = adaptive_centerline(yellow_mask, blue_mask)
     pts = np.array(center_points, dtype=np.int32).reshape((-1, 1, 2))
     cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
     frame_count += 1
     out.write(combined_mask)
     cv2.imshow('FINAL', combined_mask)
+    cv2.imshow('frame', mask3)
+    cv2.moveWindow("frame", 700, 0)
+    cv2.imshow('frame2', frame)
+    cv2.moveWindow("frame2", 700, 500)
+    """cv2.imshow('frame3', scan_mask)
+    cv2.moveWindow("frame3", 0, 500)"""
     if cv2.waitKey(1) == ord('q'):
         break
     prev_gray = gray

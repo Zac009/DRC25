@@ -1,7 +1,8 @@
 # app.py
 from flask import Flask, Response, render_template_string
 import cv2
-from masking import mask1, mask2, mask3, mask4
+import videoImplementation
+
 
 app = Flask(__name__)
 
@@ -57,22 +58,22 @@ def index():
 
 @app.route('/mask1')
 def stream_mask1():
-    return Response(generate_mask_stream(mask1),
+    return Response(generate_mask_stream(videoImplementation.combined_mask),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/mask2')
 def stream_mask2():
-    return Response(generate_mask_stream(mask2),
+    return Response(generate_mask_stream(videoImplementation.combined_mask),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/mask3')
 def stream_mask3():
-    return Response(generate_mask_stream(mask3),
+    return Response(generate_mask_stream(videoImplementation.combined_mask),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/mask4')
 def stream_mask4():
-    return Response(generate_mask_stream(mask4),
+    return Response(generate_mask_stream(videoImplementation.combined_mask),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/controls')
@@ -141,4 +142,5 @@ def control():
     return render_template_string(html)
 
 if __name__ == '__main__':
-    app.run(host='172.20.10.2', port=5000, threaded=True)
+    #app.run(host='172.20.10.2', port=5000, threaded=True)
+    app.run(host='0.0.0.0', port=5001, threaded=True)
