@@ -1,7 +1,7 @@
 import cv2
 
 # Open the default camera (index 0)
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
 
 # Check if the camera opened successfully
 if not cap.isOpened():
@@ -20,7 +20,7 @@ while(True):
 
     # Load stereo image (assuming side-by-side format)
     # Split into left and right images
-    height, width, _ = frame.shape
+    """height, width, _ = frame.shape
     left_image = frame[:, :width//2]
     right_image = frame[:, width//2:]
 
@@ -29,10 +29,10 @@ while(True):
     right_gray = cv2.cvtColor(right_image, cv2.COLOR_BGR2GRAY)
 
     # Compute the average image
-    mono_image = cv2.addWeighted(left_gray, 0.50, right_gray, 0.5, 0)
+    mono_image = cv2.addWeighted(left_gray, 0.50, right_gray, 0.5, 0)"""
 
     # Display the frame
-    cv2.imshow('frame', right_image)
+    cv2.imshow('frame', frame)
 
     # Quit if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):

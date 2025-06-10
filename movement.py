@@ -43,10 +43,10 @@ try:
     # Move forward
     steer(STEER_CENTER)
     drive(DRIVE_FORWARD)
-    time.sleep(2)
+    time.sleep(1)
 
     # Turn left while moving
-    steer(STEER_LEFT)
+    steer(STEER_RIGHT)
     time.sleep(1)
 
     # Stop

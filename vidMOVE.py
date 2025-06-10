@@ -24,7 +24,7 @@ DRIVE_FORWARD = 1600
 DRIVE_BACKWARD = 1400
 
 frame_count = 0
-cap = cv2.VideoCapture('qut_demo.mov')
+cap = cv2.VideoCapture(0)
 # Define the codec and create VideoWriter object
 
 center_points = []
@@ -141,6 +141,7 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
             midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
             midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
             midpoint = (midpoint_x, midpoint_y)
+            print(midpoint)
             #check_green(midpoint)
             center_points.append(midpoint)
             if midpoint_old is not None:
