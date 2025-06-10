@@ -1,7 +1,11 @@
 import cv2
 
 # Open the default camera (index 0)
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+cap = cv2.VideoCapture(0)
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+ret, frame = cap.read()
+height, width = frame.shape[:2]
+out = cv2.VideoWriter('output1.avi', fourcc, 20.0, (width, height))
 
 # Check if the camera opened successfully
 if not cap.isOpened():
@@ -32,6 +36,7 @@ while(True):
     mono_image = cv2.addWeighted(left_gray, 0.50, right_gray, 0.5, 0)"""
 
     # Display the frame
+    out.write(frame)
     cv2.imshow('frame', frame)
 
     # Quit if 'q' is pressed
