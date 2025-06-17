@@ -50,7 +50,7 @@ while True:
     # Display the resulting frame
     mask = cv2.add(yellow_mask, blue_mask)
     out.write(mask)
-    cv2.imshow('frame', frame)
+    cv2.imshow('frame', mask)
     if cv2.waitKey(1) == ord('q'):
         break
  

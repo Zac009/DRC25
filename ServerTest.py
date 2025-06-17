@@ -169,6 +169,7 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
         else:
             pass
     ang = calculate_angle(midpoint)
+    movement(ang)
     return scan_mask, mix_mask, ang
 
 def track_frame_motion(prev, gray):
@@ -256,7 +257,7 @@ try:
         cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
         frame_count += 1
         try:
-            if abs(prev_pulse - pulse_value) < 5:
+            if abs(prev_pulse - pulse_value) < 50:
                 pass
             else:
                 pi.set_servo_pulsewidth(STEER_PIN, pulse_value)

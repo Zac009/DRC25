@@ -140,8 +140,8 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
 
         else:
             pass
-    calculate_angle(midpoint)
-    return scan_mask, mix_mask
+    ang = calculate_angle(midpoint)
+    return scan_mask, mix_mask, ang
 
 def track_frame_motion(prev, gray):
     flow = cv2.calcOpticalFlowFarneback(prev, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -216,7 +216,7 @@ while True:
 
     yellow_hits = cv2.bitwise_and(yellow_mask, scan_mask)
     blue_hits = cv2.bitwise_and(blue_mask, scan_mask)
-    path_points, mask3 = adaptive_centerline(yellow_mask, blue_mask)
+    path_points, mask3, ang = adaptive_centerline(yellow_mask, blue_mask)
     pts = np.array(center_points, dtype=np.int32).reshape((-1, 1, 2))
     cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
     frame_count += 1
@@ -226,9 +226,10 @@ while True:
     cv2.moveWindow("frame", 700, 0)
     cv2.imshow('frame2', frame)
     cv2.moveWindow("frame2", 700, 500)
+    print(ang)
     """cv2.imshow('frame3', scan_mask)
     cv2.moveWindow("frame3", 0, 500)"""
-    if cv2.waitKey(1) == ord('q'):
+    if cv2.waitKey(0) == ord('q'):
         break
     prev_gray = gray
  

@@ -4,8 +4,10 @@ import numpy as np
 class HSVAdjuster:
     def __init__(self):
         self.window_name = "HSV Threshold Adjuster"
-        self.lower_blue = np.array([100, 50, 120])
-        self.upper_blue = np.array([150, 255, 255])
+        self.lower_blue = np.array([30,50,100])
+        #25,25,170
+        self.upper_blue = np.array([50,255,255])
+
 
         # Create OpenCV window
         cv2.namedWindow(self.window_name)
@@ -33,7 +35,7 @@ class HSVAdjuster:
         return self.lower_blue, self.upper_blue
 
     def run(self):
-        cap = cv2.VideoCapture(1)  # Change to 'qut_demo.mov' if using a video
+        cap = cv2.VideoCapture("qut_demo.mov")  # Change to 'qut_demo.mov' if using a video
 
         while True:
             ret, frame = cap.read()
