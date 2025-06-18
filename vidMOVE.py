@@ -19,7 +19,7 @@ DRIVE_FORWARD = 1600
 DRIVE_BACKWARD = 1400
 
 frame_count = 0
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("qut_demo.mov")
 # Define the codec and create VideoWriter object
 
 center_points = []
@@ -144,7 +144,6 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
             midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
             midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
             midpoint = (midpoint_x, midpoint_y)
-            print(midpoint)
             #check_green(midpoint)
             center_points.append(midpoint)
             if midpoint_old is not None:
@@ -169,6 +168,10 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
         else:
             pass
     ang = calculate_angle(midpoint)
+    if ang > 1500:
+        ang += 100
+    else:
+        ang -= 100
     return scan_mask, mix_mask, ang
 
 def track_frame_motion(prev, gray):
@@ -227,7 +230,8 @@ if not cap.isOpened():
     print("Cannot open camera")
     exit()
 
-pi.set_servo_pulsewidth(DRIVE_PIN, 1520) 
+steer(STEER_CENTER)
+pi.set_servo_pulsewidth(DRIVE_PIN, 1560) 
 try:
     while True:
         ret, frame = cap.read()
@@ -252,24 +256,26 @@ try:
         yellow_hits = cv2.bitwise_and(yellow_mask, scan_mask)
         blue_hits = cv2.bitwise_and(blue_mask, scan_mask)
         path_points, mask3, pulse_value = adaptive_centerline(yellow_mask, blue_mask)
+        print(pulse_value)
         pts = np.array(center_points, dtype=np.int32).reshape((-1, 1, 2))
         cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
         frame_count += 1
         try:
-            if abs(prev_pulse - pulse_value) < 5:
+            if abs(prev_pulse - pulse_value) < 0:
                 pass
             else:
                 pi.set_servo_pulsewidth(STEER_PIN, pulse_value)
                 prev_pulse = pulse_value
+                print("CHANGE")
             time.sleep(0.05)
         except Exception as e:
             print(e)
         out.write(combined_mask)
-        cv2.imshow('FINAL', combined_mask)
+        """cv2.imshow('FINAL', combined_mask)"""
         """cv2.imshow('frame', mask3)
         cv2.moveWindow("frame", 700, 0)"""
-        cv2.imshow('frame2', frame)
-        cv2.moveWindow("frame2", 700, 500)
+        """cv2.imshow('frame2', frame)
+        cv2.moveWindow("frame2", 700, 500)"""
         """cv2.imshow('frame3', scan_mask)
         cv2.moveWindow("frame3", 0, 500)"""
         if cv2.waitKey(1) == ord('q'):

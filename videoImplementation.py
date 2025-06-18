@@ -221,11 +221,11 @@ while True:
     cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
     frame_count += 1
     out.write(combined_mask)
-    cv2.imshow('FINAL', combined_mask)
+    """cv2.imshow('FINAL', combined_mask)
     cv2.imshow('frame', mask3)
     cv2.moveWindow("frame", 700, 0)
     cv2.imshow('frame2', frame)
-    cv2.moveWindow("frame2", 700, 500)
+    cv2.moveWindow("frame2", 700, 500)"""
     print(ang)
     """cv2.imshow('frame3', scan_mask)
     cv2.moveWindow("frame3", 0, 500)"""
