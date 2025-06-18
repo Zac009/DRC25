@@ -35,7 +35,7 @@ class HSVAdjuster:
         return self.lower_blue, self.upper_blue
 
     def run(self):
-        cap = cv2.VideoCapture("qut_demo.mov")  # Change to 'qut_demo.mov' if using a video
+        cap = cv2.VideoCapture(0)  # Change to 'qut_demo.mov' if using a video
 
         while True:
             ret, frame = cap.read()

@@ -20,7 +20,7 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1560
+DRIVE_FORWARD = 1580
 DRIVE_BACKWARD = 1400
 
 # Connect to pigpio daemon
@@ -46,8 +46,8 @@ try:
     time.sleep(1)
 
     # Turn left while moving
-    steer(STEER_RIGHT)
-    time.sleep(1)
+    steer(STEER_LEFT)
+    time.sleep(0.5)
 
     # Stop
     drive(DRIVE_STOP)

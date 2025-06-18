@@ -19,14 +19,16 @@ DRIVE_FORWARD = 1600
 DRIVE_BACKWARD = 1400
 
 frame_count = 0
-cap = cv2.VideoCapture("qut_demo.mov")
+cap = cv2.VideoCapture(0)
 # Define the codec and create VideoWriter object
 
 center_points = []
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 ret, frame = cap.read()
 height, width = frame.shape[:2]
-out = cv2.VideoWriter('qut_demo', fourcc, 20.0, (width, height))
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('output11.avi', fourcc, 20.0, (640,  480))
 threshold1 = 85
 threshold2 = 85
 r_width = 500
@@ -228,7 +230,7 @@ if not cap.isOpened():
     exit()
 
 steer(STEER_CENTER)
-pi.set_servo_pulsewidth(DRIVE_PIN, 1560) 
+pi.set_servo_pulsewidth(DRIVE_PIN, 1590) 
 try:
     while True:
         ret, frame = cap.read()

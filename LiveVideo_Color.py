@@ -3,7 +3,7 @@ import cv2 as cv2
 import threading
 
 
-cap = cv2.VideoCapture('qut_demo.mov')
+cap = cv2.VideoCapture(0)
 
 threshold1 = 85
 threshold2 = 85
@@ -18,7 +18,7 @@ max_slider = 10
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output1.avi', fourcc, 20.0, (640,  480))
+out = cv2.VideoWriter('output11.avi', fourcc, 20.0, (640,  480))
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
@@ -36,8 +36,8 @@ while True:
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_blue = np.array([100,50,120])
     upper_blue = np.array([150,255,255])
-    lower_yellow = np.array([25,30,100])
-    upper_yellow = np.array([40,255,255])
+    lower_yellow = np.array([25,50,100])
+    upper_yellow = np.array([50,255,255])
     blue_mask = cv2.inRange(frame_HSV, lower_blue, upper_blue)
     yellow_mask = cv2.inRange(frame_HSV, lower_yellow, upper_yellow)
     # Optional: Gaussian blur can also help
