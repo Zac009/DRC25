@@ -78,6 +78,7 @@ def calculate_angle(mid):
         ang = 90
     if mid[0] > width/2:
         ang = 180-ang
+    ang/=2
     pulse = 1000 + (ang / 180.0) * 1000
     return pulse
 
@@ -168,10 +169,6 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
         else:
             pass
     ang = calculate_angle(midpoint)
-    if ang > 1500:
-        ang += 100
-    else:
-        ang -= 100
     return scan_mask, mix_mask, ang
 
 def track_frame_motion(prev, gray):
@@ -261,12 +258,12 @@ try:
         cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
         frame_count += 1
         try:
-            if abs(prev_pulse - pulse_value) < 0:
+            if abs(prev_pulse - pulse_value) < 50:
+                print(pulse_value)
                 pass
             else:
                 pi.set_servo_pulsewidth(STEER_PIN, pulse_value)
                 prev_pulse = pulse_value
-                print("CHANGE")
             time.sleep(0.05)
         except Exception as e:
             print(e)

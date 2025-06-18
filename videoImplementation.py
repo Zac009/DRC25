@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv2
 import math
+import time
 
 """
 Ideas to fix:
@@ -24,6 +25,7 @@ r_width = 500
 r_height = 300
 prev_gray = None
 prev_points = None
+prev_pulse = 1500
 
 def yellow_det(mask):
     lower_yellow = np.array([30,50,100])
@@ -109,7 +111,7 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
         mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
         yellow_coords = cv2.findNonZero(yellow_hits)
         blue_coords = cv2.findNonZero(blue_hits)
-        detect_box(mix_mask)
+        #detect_box(mix_mask)
         if yellow_coords is not None and blue_coords is not None:
             yellow_mean = np.mean(yellow_coords, axis=0)[0]
             blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -221,15 +223,23 @@ while True:
     cv2.polylines(combined_mask, [pts], isClosed=False, color=255, thickness=2)
     frame_count += 1
     out.write(combined_mask)
-    """cv2.imshow('FINAL', combined_mask)
+    try:
+        if abs(prev_pulse - ang) > 40:
+            print(abs(prev_pulse - ang))
+            pass
+        else:
+            prev_pulse = ang
+        time.sleep(0.05)
+    except Exception as e:
+        print(e)
+    cv2.imshow('FINAL', combined_mask)
     cv2.imshow('frame', mask3)
     cv2.moveWindow("frame", 700, 0)
     cv2.imshow('frame2', frame)
-    cv2.moveWindow("frame2", 700, 500)"""
-    print(ang)
+    cv2.moveWindow("frame2", 700, 500)
     """cv2.imshow('frame3', scan_mask)
     cv2.moveWindow("frame3", 0, 500)"""
-    if cv2.waitKey(0) == ord('q'):
+    if cv2.waitKey(1) == ord('q'):
         break
     prev_gray = gray
  
