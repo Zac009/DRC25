@@ -16,7 +16,7 @@ DRIVE_PIN = 16
 
 # Servo pulse values
 STEER_LEFT = 1000
-STEER_CENTER = 1500
+STEER_CENTER = 1550
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
@@ -43,7 +43,7 @@ try:
     # Move forward
     steer(STEER_CENTER)
     drive(DRIVE_FORWARD)
-    time.sleep(1)
+    time.sleep(3)
 
     # Turn left while moving
     steer(STEER_LEFT)

@@ -11,7 +11,7 @@ DRIVE_PIN = 16
 
 # Servo pulse values
 STEER_LEFT = 1000
-STEER_CENTER = 1500
+STEER_CENTER = 1550
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
@@ -140,6 +140,14 @@ def adaptive_centerline(mask_yellow, mask_blue, num_steps=1, step_size=10):
         yellow_coords = cv2.findNonZero(yellow_hits)
         blue_coords = cv2.findNonZero(blue_hits)
         #detect_box(mix_mask)
+        if blue_coords is None:
+            print("Working")
+            time.sleep(1)
+            pi.set_servo_pulsewidth(STEER_PIN, 2000)
+        if yellow_coords is None:
+            pi.set_servo_pulsewidth(STEER_PIN, 1000)
+        print(yellow_coords is None)
+        print(blue_coords is None)
         if yellow_coords is not None and blue_coords is not None:
             yellow_mean = np.mean(yellow_coords, axis=0)[0]
             blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -230,7 +238,7 @@ if not cap.isOpened():
     exit()
 
 steer(STEER_CENTER)
-pi.set_servo_pulsewidth(DRIVE_PIN, 1590) 
+pi.set_servo_pulsewidth(DRIVE_PIN, 1580) 
 try:
     while True:
         ret, frame = cap.read()
@@ -270,7 +278,7 @@ try:
         except Exception as e:
             print(e)
         out.write(combined_mask)
-        """cv2.imshow('FINAL', combined_mask)"""
+        cv2.imshow('FINAL', frame)
         """cv2.imshow('frame', mask3)
         cv2.moveWindow("frame", 700, 0)"""
         """cv2.imshow('frame2', frame)
