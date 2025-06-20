@@ -4,14 +4,12 @@ import math
 import time
 
 class Vision:
-    def __init__(self):
+    def __init__(self, lock):
         self.frame_count = 0
-        self.cap = cv2.VideoCapture('qut_demo.mov')
         self.center_points = []
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.ret, self.frame = self.cap.read()
-        self.height, self.width = self.frame.shape[:2]
-        self.out = cv2.VideoWriter('output20.avi', self.fourcc, 20.0, (self.width, self.height))
+        """self.height, self.width = self.frame.shape[:2]
+        self.out = cv2.VideoWriter('output20.avi', self.fourcc, 20.0, (self.width, self.height))"""
         self.threshold1 = 85
         self.threshold2 = 85
         self.r_width = 500
@@ -19,6 +17,10 @@ class Vision:
         self.prev_gray = None
         self.prev_points = None
         self.prev_pulse = 1500
+        self.running = False
+        self.mask1 = None
+        self.mask2 = None 
+        self.lock = lock
 
     def yellow_det(self, mask):
         lower_yellow = np.array([30,50,100])
@@ -85,6 +87,7 @@ class Vision:
         direction = self.get_initial_heading()
 
         midpoint_old = None
+        midpoint = None
         for _ in range(num_steps):
             left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=350)
             # Create scanline as a mask
@@ -139,7 +142,18 @@ class Vision:
         return dx, dy
     
     def detect_box(self, hit_mask):
-        pass
+        frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+        lower_purple = np.array([120, 70, 70])   # H, S, V
+        upper_purple = np.array([160, 255, 255])
+        purple_mask = cv2.inRange(frame_HSV, lower_purple, upper_purple)
+        contours, _ = cv2.findContours(purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        final = np.zeros_like(purple_mask)
+        cv2.drawContours(final, contours, -1, (255, 255, 255), 2)
+        """new_final = cv2.bitwise_and(self.scan_mask, final)
+        final_final = cv2.bitwise_or(new_final, hit_mask)
+        all_coords = cv2.findNonZero(final_final)"""
+        final = np.zeros_like(purple_mask)
+        return purple_mask
 
     def show_frame(self):
         pass
@@ -148,24 +162,27 @@ class Vision:
         pass
     
     def main(self):
-        if not self.cap.isOpened():
+        cap = cv2.VideoCapture('qut_demo.mov')
+        self.running = True
+        if not cap.isOpened():
             print("Cannot open camera")
             exit()
 
         while True:
-            ret, frame = self.cap.read()
+            ret, self.frame = cap.read()
+            self.height, self.width = self.frame.shape[:2]
         
             if not ret:
                 print("Can't receive frame (stream end?). Exiting ...")
                 break 
-            self.frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+            self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
             yellow_mask = self.yellow_det(self.frame_HSV)
             blue_mask = self.blue_det(self.frame_HSV)
 
             # Optional: just to visualize
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
             # Track frame motion and calculate displacement
             if self.prev_gray is not None:
@@ -178,31 +195,36 @@ class Vision:
             pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
             cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)
             self.frame_count += 1
-            self.out.write(self.combined_mask)
+            #self.out.write(self.combined_mask)
             try:
                 if abs(self.prev_pulse - ang) > 40:
                     print(abs(self.prev_pulse - ang))
                     pass
                 else:
                     self.prev_pulse = ang
-                time.sleep(0.05)
             except Exception as e:
                 print(e)
-            cv2.imshow('FINAL', self.combined_mask)
+            """with self.lock:
+                self.mask1 = self.combined_mask
+                self.mask2 = self.frame"""
+            """cv2.imshow('FINAL', self.combined_mask)
             cv2.imshow('frame', mask3)
-            cv2.moveWindow("frame", 700, 0)
-            cv2.imshow('frame2', frame)
-            cv2.moveWindow("frame2", 700, 500)
-            """cv2.imshow('frame3', scan_mask)
-            cv2.moveWindow("frame3", 0, 500)"""
+            cv2.moveWindow("frame", 700, 0)"""
+            purple_mask = self.detect_box(self.frame)
+            cv2.imshow('frame2', self.frame)
+            cv2.imshow('frame3', purple_mask)
+            cv2.moveWindow("frame3", 0, 500)
             if cv2.waitKey(1) == ord('q'): #Make this relate to the stop button
                 break
+            """if not self.running:
+                print("Process Stopped...")
+                break"""
             self.prev_gray = gray
         
         # When everything done, release the capture
-        self.cap.release()
-        self.out.release()
+        cap.release()
         cv2.destroyAllWindows()
 
-Ben = Vision()
+
+Ben = Vision("Bleh")
 Ben.main()
