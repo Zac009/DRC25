@@ -190,7 +190,7 @@ def detect_box(hit_mask):
             # Visualize
             cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
             final = cv2.bitwise_or(final,final_final)
-    return final
+    return final, purple_mask
 
 if not cap.isOpened():
     print("Cannot open camera")
@@ -239,7 +239,7 @@ while True:
     cv2.moveWindow("frame2", 700, 500)
     """cv2.imshow('frame3', scan_mask)
     cv2.moveWindow("frame3", 0, 500)"""
-    if cv2.waitKey(1) == ord('q'):
+    if cv2.waitKey(1) == ord('p'): #Make this relate to the stop button
         break
     prev_gray = gray
  

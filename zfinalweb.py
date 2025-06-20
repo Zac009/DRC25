@@ -2,7 +2,6 @@ from flask import Flask, Response, render_template_string
 import cv2
 import threading
 import time
-from ServerTest import *
 
 app = Flask(__name__)
 
@@ -74,13 +73,39 @@ def index():
                 height: auto;
                 border: 1px solid #ccc;
             }
+        button {
+                padding: 20px;
+                font-size: 18px;
+                border-radius: 10px;
+                border: none;
+                background-color: #4CAF50;
+                color: white;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #45a049;
+            }
         </style>
     </head>
     <body>
         <div class="mask-container">
             <div class="mask"><h3>Mask 1</h3><img src="/mask1" width="400" height="300"/></div>
             <div class="mask"><h3>Mask 2</h3><img src="/mask2" width="400" height="300"/></div>
+            <button onclick="sendCommand('stop')">⏹️</button>
+            <button onclick="sendCommand('play')">▶️</button>
         </div>
+
+        <p>Command Sent: <span id="status">None</span></p>
+
+        <script>
+            function sendCommand(command) {
+                fetch('/command/' + command)
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('status').innerText = data;
+                    });
+            }
+        </script>
     </body>
     </html>
     '''
@@ -93,6 +118,16 @@ def stream_mask1():
 @app.route('/mask2')
 def stream_mask2():
     return Response(generate_stream(2), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/command/<cmd>')
+def handle_command(cmd):
+    if cmd == 'play':
+        # Call your play function
+        print("Goodbye World")
+    elif cmd == 'stop':
+        # Call your stop function
+        pass
+    return cmd
 
 if __name__ == '__main__':
     t = threading.Thread(target=video_capture_thread, daemon=True)
