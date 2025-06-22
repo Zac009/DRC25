@@ -16,7 +16,7 @@ class Vision:
         self.r_height = 300
         self.prev_gray = None
         self.prev_points = None
-        self.prev_pulse = 1500
+        self.prev_pulse = 1550
         self.running = False
         self.mask1 = None
         self.mask2 = None 
@@ -49,11 +49,11 @@ class Vision:
         try:
             ang = math.atan(h/w)
             ang = math.degrees(ang)
+            if mid[0] > self.width/2:
+                ang = 180 - ang
+            pulse = 1000 + (ang / 180) * 1000 + 50
         except ZeroDivisionError:
-            ang = 90 #Needs to = 1550 because it is straight
-        if mid[0] > self.width/2:
-            ang = 180
-        pulse = 1000 + (ang / 180) * 1000 + 50
+            pulse = self.prev_pulse #Needs to = 1550 because it is straight
         return pulse
     
     def get_initial_heading(self):
@@ -128,9 +128,13 @@ class Vision:
                 cv2.circle(mix_mask, midpoint, 3, (255, 255, 255), -1)
                 #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
-
             else:
-                pass
+                #This means that the midpoint is not found
+                if yellow_coords is None:
+                    #Left tape
+                    pass
+                elif blue_coords is None:
+                    pass
         ang = self.calculate_ang(midpoint)
         return self.scan_mask, mix_mask, ang
 
@@ -197,10 +201,12 @@ class Vision:
             self.frame_count += 1
             #self.out.write(self.combined_mask)
             try:
-                if abs(self.prev_pulse - ang) > 40:
-                    print(abs(self.prev_pulse - ang))
+                if abs(self.prev_pulse - ang) < 40:
+                    var = abs(self.prev_pulse - ang)
+                    print(f"The angle is {ang} and the change is {var} and the prev is {self.prev_pulse}")
                     pass
                 else:
+                    print(f"The angle is {ang} and the change is {var} and the prev is {self.prev_pulse}")
                     self.prev_pulse = ang
             except Exception as e:
                 print(e)
@@ -212,9 +218,9 @@ class Vision:
             cv2.moveWindow("frame", 700, 0)"""
             purple_mask = self.detect_box(self.frame)
             cv2.imshow('frame2', self.frame)
-            cv2.imshow('frame3', purple_mask)
+            cv2.imshow('frame3', self.combined_mask)
             cv2.moveWindow("frame3", 0, 500)
-            if cv2.waitKey(1) == ord('q'): #Make this relate to the stop button
+            if cv2.waitKey(0) == ord('q'): #Make this relate to the stop button
                 break
             """if not self.running:
                 print("Process Stopped...")
