@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv2
 import math
+from math import atan2, cos, sin, sqrt, pi
 import time
 import pigpio
 
@@ -120,7 +121,30 @@ class Vision:
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
-            #detect_box(mix_mask)
+            one, self.two = self.detect_box(mix_mask)
+            if yellow_coords is None:
+                #Left tape
+                for i in range(1000, 1600, 50):
+                    self.steer(i)
+                    self.drive(1580)
+                    yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
+                    blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+                    mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
+                    yellow_coords = cv2.findNonZero(yellow_hits)
+                    blue_coords = cv2.findNonZero(blue_hits)
+                    if yellow_coords is not None and blue_coords is not None:
+                        break
+            elif blue_coords is None:
+                for i in range(1000, 1600, 50):
+                    self.steer(i)
+                    self.drive(1580)
+                    yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
+                    blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+                    mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
+                    yellow_coords = cv2.findNonZero(yellow_hits)
+                    blue_coords = cv2.findNonZero(blue_hits)
+                    if yellow_coords is not None and blue_coords is not None:
+                        break
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -148,14 +172,6 @@ class Vision:
                 cv2.circle(mix_mask, midpoint, 3, (255, 255, 255), -1)
                 #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
-            else:
-                #This means that the midpoint is not found
-                if yellow_coords is None:
-                    #Left tape
-                    for i in range(1000, 1600, 50):
-                        self.pi.set_servo_pulsewidth(STEER_PIN, i)
-                elif blue_coords is None:
-                    pass
         ang = self.calculate_ang(midpoint)
         return self.scan_mask, mix_mask, ang
 
@@ -174,11 +190,44 @@ class Vision:
         contours, _ = cv2.findContours(purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         final = np.zeros_like(purple_mask)
         cv2.drawContours(final, contours, -1, (255, 255, 255), 2)
-        """new_final = cv2.bitwise_and(self.scan_mask, final)
+        new_final = cv2.bitwise_and(self.scan_mask, final)
         final_final = cv2.bitwise_or(new_final, hit_mask)
-        all_coords = cv2.findNonZero(final_final)"""
+        all_coords = cv2.findNonZero(final_final)
         final = np.zeros_like(purple_mask)
-        return purple_mask
+        if all_coords is not None and len(all_coords) >= 20:
+        # Flatten and sort points left to right
+            sorted_coords = sorted([pt[0] for pt in all_coords], key=lambda p: p[0])  # Sort by x
+        
+            # Track the maximum gap and its index
+            max_gap = 0
+            max_pair = None
+            
+            for i in range(len(sorted_coords) - 1):
+                p1 = sorted_coords[i]
+                p2 = sorted_coords[i + 1]
+                dist = np.linalg.norm(np.array(p2) - np.array(p1))
+                if dist > max_gap:
+                    max_gap = dist
+                    max_pair = (p1, p2)
+            
+            if max_pair:
+                midpoint_x = int((max_pair[0][0] + max_pair[1][0]) / 2)
+                midpoint_y = int((max_pair[0][1] + max_pair[1][1]) / 2)
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                
+                # Visualize
+                cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
+                final = cv2.bitwise_or(final,final_final)
+        return final, purple_mask
+    
+    def arrow_detection(self):
+        """
+        Copy the code from the arrow file
+        Adjust it to make it so it only runs on a black detected color mask
+        Then pass left or Right as servo pulses so 1000 or 2000
+        """
+        pass
     
     def main(self):
         cap = cv2.VideoCapture('qut_demo.mov')
@@ -195,7 +244,6 @@ class Vision:
             while True:
                 ret, self.frame = cap.read()
                 self.height, self.width = self.frame.shape[:2]
-            
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break 
@@ -221,12 +269,16 @@ class Vision:
                 self.frame_count += 1
                 #self.out.write(self.combined_mask)
                 try:
-                    if abs(self.prev_pulse - ang) > 40:
-                        print(abs(self.prev_pulse - ang))
+                    if abs(self.prev_pulse - ang) < 40:
+                        self.steer(ang)
+                        self.drive(1540)
                     else:
                         self.prev_pulse = ang
+                        self.drive(1580)
                 except Exception as e:
                     print(e)
+                time.sleep(0.05)
+                self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
                 """with self.lock:
                     self.mask1 = self.combined_mask
                     self.mask2 = self.frame"""

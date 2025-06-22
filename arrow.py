@@ -76,7 +76,7 @@ def getOrientation(pts, img):
   return angle
  
 # Load the image
-cap = cv.VideoCapture('ERERE.avi')
+cap = cv.VideoCapture('qut_demo.mov')
  
 # Define the codec and create VideoWriter object
 framerate = int(cap.get(cv.CAP_PROP_FPS))
@@ -120,7 +120,6 @@ while True:
     # Calculate the area of each contour
         area = cv.contourArea(c)
         # Ignore contours that are too small or too large
-        print(area)
         if area < 7000:
             continue
         

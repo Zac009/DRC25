@@ -51,9 +51,12 @@ class Vision:
             ang = math.degrees(ang)
             if mid[0] > self.width/2:
                 ang = 180 - ang
+            """ang = max(45, min(135, ang))
+            pulse = 1000 + ((ang - 45) / 90) * 1000"""
             pulse = 1000 + (ang / 180) * 1000 + 50
         except ZeroDivisionError:
             pulse = self.prev_pulse #Needs to = 1550 because it is straight
+            
         return pulse
     
     def get_initial_heading(self):
@@ -100,7 +103,7 @@ class Vision:
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
-            #detect_box(mix_mask)
+            one, self.two = self.detect_box(mix_mask)
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -153,11 +156,36 @@ class Vision:
         contours, _ = cv2.findContours(purple_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         final = np.zeros_like(purple_mask)
         cv2.drawContours(final, contours, -1, (255, 255, 255), 2)
-        """new_final = cv2.bitwise_and(self.scan_mask, final)
+        new_final = cv2.bitwise_and(self.scan_mask, final)
         final_final = cv2.bitwise_or(new_final, hit_mask)
-        all_coords = cv2.findNonZero(final_final)"""
+        all_coords = cv2.findNonZero(final_final)
         final = np.zeros_like(purple_mask)
-        return purple_mask
+        if all_coords is not None and len(all_coords) >= 20:
+        # Flatten and sort points left to right
+            sorted_coords = sorted([pt[0] for pt in all_coords], key=lambda p: p[0])  # Sort by x
+        
+            # Track the maximum gap and its index
+            max_gap = 0
+            max_pair = None
+            
+            for i in range(len(sorted_coords) - 1):
+                p1 = sorted_coords[i]
+                p2 = sorted_coords[i + 1]
+                dist = np.linalg.norm(np.array(p2) - np.array(p1))
+                if dist > max_gap:
+                    max_gap = dist
+                    max_pair = (p1, p2)
+            
+            if max_pair:
+                midpoint_x = int((max_pair[0][0] + max_pair[1][0]) / 2)
+                midpoint_y = int((max_pair[0][1] + max_pair[1][1]) / 2)
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                
+                # Visualize
+                cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
+                final = cv2.bitwise_or(final,final_final)
+        return final, purple_mask
 
     def show_frame(self):
         pass
@@ -206,17 +234,18 @@ class Vision:
                     print(f"The angle is {ang} and the change is {var} and the prev is {self.prev_pulse}")
                     pass
                 else:
+                    var = abs(self.prev_pulse - ang)
                     print(f"The angle is {ang} and the change is {var} and the prev is {self.prev_pulse}")
                     self.prev_pulse = ang
             except Exception as e:
                 print(e)
+            self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
             """with self.lock:
                 self.mask1 = self.combined_mask
                 self.mask2 = self.frame"""
             """cv2.imshow('FINAL', self.combined_mask)
             cv2.imshow('frame', mask3)
             cv2.moveWindow("frame", 700, 0)"""
-            purple_mask = self.detect_box(self.frame)
             cv2.imshow('frame2', self.frame)
             cv2.imshow('frame3', self.combined_mask)
             cv2.moveWindow("frame3", 0, 500)
