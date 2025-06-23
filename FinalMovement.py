@@ -231,7 +231,7 @@ class Vision:
         pass
     
     def main(self):
-        self.__init__()
+        self.__init__(self.lock)
         cap = cv2.VideoCapture('qut_demo.mov')
         self.running = True
         self.pi = pigpio.pi()
