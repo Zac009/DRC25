@@ -16,6 +16,7 @@ STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
 DRIVE_FORWARD = 1600
+DRIVE_CORNER = 1560
 DRIVE_BACKWARD = 1400
 
 class Vision:
@@ -126,7 +127,7 @@ class Vision:
                 #Left tape
                 for i in range(1000, 1600, 50):
                     self.steer(i)
-                    self.drive(1580)
+                    self.drive(DRIVE_FORWARD)
                     yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
                     blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                     mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
@@ -137,7 +138,7 @@ class Vision:
             elif blue_coords is None:
                 for i in range(1000, 1600, 50):
                     self.steer(i)
-                    self.drive(1580)
+                    self.drive(DRIVE_FORWARD)
                     yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
                     blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                     mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
@@ -230,6 +231,7 @@ class Vision:
         pass
     
     def main(self):
+        self.__init__()
         cap = cv2.VideoCapture('qut_demo.mov')
         self.running = True
         self.pi = pigpio.pi()
@@ -252,6 +254,7 @@ class Vision:
                 blue_mask = self.blue_det(self.frame_HSV)
 
                 # Optional: just to visualize
+                self.combined_mask = np.zeros_like(self.frame)
                 self.combined_mask = cv2.add(yellow_mask, blue_mask)
                 self.scan_mask = np.zeros_like(self.combined_mask)
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
@@ -271,29 +274,29 @@ class Vision:
                 try:
                     if abs(self.prev_pulse - ang) < 40:
                         self.steer(ang)
-                        self.drive(1540)
+                        self.drive(DRIVE_CORNER)
                     else:
                         self.prev_pulse = ang
-                        self.drive(1580)
+                        self.drive(DRIVE_FORWARD)
                 except Exception as e:
                     print(e)
                 time.sleep(0.05)
                 self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                """with self.lock:
+                with self.lock:
                     self.mask1 = self.combined_mask
-                    self.mask2 = self.frame"""
+                    self.mask2 = self.frame
                 """cv2.imshow('FINAL', self.combined_mask)
                 cv2.imshow('frame', mask3)
-                cv2.moveWindow("frame", 700, 0)"""
+                cv2.moveWindow("frame", 700, 0)
                 purple_mask = self.detect_box(self.frame)
                 cv2.imshow('frame2', self.frame)
                 cv2.imshow('frame3', self.combined_mask)
                 cv2.moveWindow("frame3", 0, 500)
                 if cv2.waitKey(1) == ord('q'): #For non webserver testing.
-                    break
-                """if not self.running:
-                    print("Process Stopped...")
                     break"""
+                if not self.running:
+                    print("Process Stopped...")
+                    break
                 self.prev_gray = gray
         finally:
             # When everything done, release the capture

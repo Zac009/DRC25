@@ -194,6 +194,7 @@ class Vision:
         pass
     
     def main(self):
+        self.__init__(self.lock)
         cap = cv2.VideoCapture('qut_demo.mov')
         self.running = True
         if not cap.isOpened():
@@ -212,6 +213,7 @@ class Vision:
             blue_mask = self.blue_det(self.frame_HSV)
 
             # Optional: just to visualize
+            self.combined_mask = np.zeros_like(self.frame)
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
             gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
@@ -240,26 +242,22 @@ class Vision:
             except Exception as e:
                 print(e)
             self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-            """with self.lock:
+            with self.lock:
                 self.mask1 = self.combined_mask
-                self.mask2 = self.frame"""
+                self.mask2 = self.frame
             """cv2.imshow('FINAL', self.combined_mask)
             cv2.imshow('frame', mask3)
-            cv2.moveWindow("frame", 700, 0)"""
+            cv2.moveWindow("frame", 700, 0)
             cv2.imshow('frame2', self.frame)
             cv2.imshow('frame3', self.combined_mask)
             cv2.moveWindow("frame3", 0, 500)
             if cv2.waitKey(0) == ord('q'): #Make this relate to the stop button
-                break
-            """if not self.running:
-                print("Process Stopped...")
                 break"""
+            if not self.running:
+                print("Process Stopped...")
+                break
             self.prev_gray = gray
         
         # When everything done, release the capture
         cap.release()
         cv2.destroyAllWindows()
-
-
-Ben = Vision("Bleh")
-Ben.main()
