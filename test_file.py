@@ -23,7 +23,7 @@ class Vision:
         self.lock = lock
 
     def yellow_det(self, mask):
-        lower_yellow = np.array([30,50,100])
+        lower_yellow = np.array([26,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
@@ -102,7 +102,7 @@ class Vision:
             self.combined_mask = np.zeros_like(self.frame)
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
-            self.adaptive_centerline(yellow_mask, blue_mask)
+            self.combined_mask = self.adaptive_centerline(yellow_mask, blue_mask)
             with self.lock:
                 self.mask1 = self.combined_mask
                 self.mask2 = self.frame
