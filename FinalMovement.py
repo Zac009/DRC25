@@ -282,9 +282,9 @@ class Vision:
                     print(e)
                 time.sleep(0.05)
                 self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                with self.lock:
+                """with self.lock:
                     self.mask1 = self.combined_mask
-                    self.mask2 = self.frame
+                    self.mask2 = self.frame"""
                 """cv2.imshow('FINAL', self.combined_mask)
                 cv2.imshow('frame', mask3)
                 cv2.moveWindow("frame", 700, 0)
