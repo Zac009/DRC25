@@ -232,7 +232,7 @@ class Vision:
     
     def main(self):
         self.__init__(self.lock)
-        cap = cv2.VideoCapture('qut_demo.mov')
+        cap = cv2.VideoCapture(0)
         self.running = True
         self.pi = pigpio.pi()
         if not self.pi.connected:
