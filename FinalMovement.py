@@ -54,7 +54,7 @@ class Vision:
         lower_green = np.array([35, 100, 100])
         upper_green = np.array([85, 255, 255])
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
-        #Stop Code
+        self.drive(DRIVE_STOP)
         return green_mask
     
     def steer(self,pulse):
@@ -153,7 +153,7 @@ class Vision:
                 midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
                 midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
                 midpoint = (midpoint_x, midpoint_y)
-                self.green_det(midpoint)
+                #self.green_det(midpoint)
                 self.center_points.append(midpoint)
                 if midpoint_old is not None:
                     dx = midpoint[0] - midpoint_old[0]
