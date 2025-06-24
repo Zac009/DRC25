@@ -270,13 +270,13 @@ class Vision:
 
                 yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
                 blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
+                print("Doesnt move")
                 path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
                 pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)
                 self.frame_count += 1
                 #self.out.write(self.combined_mask)
                 try:
-                    print("Doesnt move")
                     if abs(self.prev_pulse - ang) < 40:
                         self.steer(ang)
                         self.drive(DRIVE_CORNER)
