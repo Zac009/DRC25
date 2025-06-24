@@ -276,6 +276,7 @@ class Vision:
                 self.frame_count += 1
                 #self.out.write(self.combined_mask)
                 try:
+                    print("Doesnt move")
                     if abs(self.prev_pulse - ang) < 40:
                         self.steer(ang)
                         self.drive(DRIVE_CORNER)
