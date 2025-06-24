@@ -244,7 +244,7 @@ class Vision:
         if not cap.isOpened():
             print("Cannot open camera")
             exit()
-        self.steer(STEER_CENTER)
+        #self.steer(STEER_CENTER)
         try:
             while True:
                 print("BOOOMs")
