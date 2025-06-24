@@ -39,7 +39,7 @@ class Vision:
         self.lock = lock
 
     def yellow_det(self, mask):
-        lower_yellow = np.array([30,50,100])
+        lower_yellow = np.array([25,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
@@ -136,7 +136,7 @@ class Vision:
                     if yellow_coords is not None and blue_coords is not None:
                         break
             elif blue_coords is None:
-                for i in range(1000, 1600, 50):
+                for i in range(2000, 1600, -50):
                     self.steer(i)
                     self.drive(DRIVE_FORWARD)
                     yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
@@ -244,6 +244,7 @@ class Vision:
         self.steer(STEER_CENTER)
         try:
             while True:
+                print("BOOOMs")
                 ret, self.frame = cap.read()
                 self.height, self.width = self.frame.shape[:2]
                 if not ret:
@@ -282,9 +283,9 @@ class Vision:
                     print(e)
                 time.sleep(0.05)
                 self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                """with self.lock:
+                with self.lock:
                     self.mask1 = self.combined_mask
-                    self.mask2 = self.frame"""
+                    self.mask2 = self.frame
                 """cv2.imshow('FINAL', self.combined_mask)
                 cv2.imshow('frame', mask3)
                 cv2.moveWindow("frame", 700, 0)
@@ -304,7 +305,3 @@ class Vision:
             self.pi.stop()
             cap.release()
             cv2.destroyAllWindows()
-
-
-Ben = Vision("Bleh")
-Ben.main()
