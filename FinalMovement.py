@@ -173,7 +173,10 @@ class Vision:
                 cv2.circle(mix_mask, midpoint, 3, (255, 255, 255), -1)
                 #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
-        ang = self.calculate_ang(midpoint)
+                if midpoint is None:
+                    pass
+                else:
+                    ang = self.calculate_ang(midpoint)
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
