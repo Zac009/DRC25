@@ -102,7 +102,7 @@ class Vision:
             self.combined_mask = np.zeros_like(self.frame)
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
-            self.combined_mask = self.adaptive_centerline(yellow_mask, blue_mask)
+            self.adaptive_centerline(yellow_mask, blue_mask)
             with self.lock:
                 self.mask1 = self.combined_mask
                 self.mask2 = self.frame
