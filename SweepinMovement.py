@@ -101,17 +101,13 @@ class Vision:
 
         return (dx_rot, dy_rot)
     
-    def followLine(self, var):
-        max_error = self.width // 2
-        pulse = STEER_CENTER + int((450 * var) / max_error)
-        return pulse
-    
     #Num steps is for individual photos not videos
     def adaptive_centerline(self, mask_yellow, mask_blue, num_steps=1, step_size=10):
         w, h = mask_yellow.shape
         se = w/2
         position = (h/2, se)
         direction = self.get_initial_heading()
+
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
@@ -127,6 +123,35 @@ class Vision:
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
             one, self.two = self.detect_box(mix_mask)
+            if yellow_coords is None or blue_coords is None:
+                # Attempt to reacquire both tapes
+                found = False
+                for steer_pulse in (range(1000, 1600, 50) if yellow_coords is None else range(2000, 1600, -50)):
+                    self.steer(steer_pulse)
+                    self.drive(DRIVE_FORWARD)
+                    time.sleep(0.1)
+                    ret, self.frame = self.cap.read()
+                    if not ret:
+                        break
+                    self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+                    yellow_mask = self.yellow_det(self.frame_HSV)
+                    blue_mask = self.blue_det(self.frame_HSV)
+                    yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
+                    blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
+                    yellow_coords = cv2.findNonZero(yellow_hits)
+                    blue_coords = cv2.findNonZero(blue_hits)
+                    mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
+                    if yellow_coords is not None and blue_coords is not None:
+                        found = True
+                        mask_yellow = yellow_mask
+                        mask_blue = blue_mask
+                        break
+                if not found:
+                    # Stop robot if line not found after sweeping
+                    self.drive(DRIVE_STOP)
+                    return self.scan_mask, mix_mask, self.prev_pulse  # Or suitable fallback
+
+
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -158,14 +183,6 @@ class Vision:
                     ang = STEER_CENTER
                 else:
                     ang = self.calculate_ang(midpoint)
-            elif blue_coords is not None:
-                blue_mean = np.mean(blue_coords, axis=0)[0]
-                error = blue_mean[0] - int(self.width * 0.66)
-                ang = self.followLine(error)
-            elif yellow_coords is not None:
-                yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                error = blue_mean[0] - int(self.width * 0.66)
-                ang = self.followLine(error)
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
