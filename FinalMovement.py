@@ -123,29 +123,33 @@ class Vision:
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
             one, self.two = self.detect_box(mix_mask)
-            if yellow_coords is None:
-                #Left tape
-                for i in range(1000, 1600, 50):
-                    self.steer(i)
+            if yellow_coords is None or blue_coords is None:
+                # Attempt to reacquire both tapes
+                found = False
+                for steer_pulse in (range(1000, 1600, 50) if yellow_coords is None else range(2000, 1600, -50)):
+                    self.steer(steer_pulse)
                     self.drive(DRIVE_FORWARD)
-                    yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
-                    blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
-                    mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
+                    time.sleep(0.1)
+                    ret, self.frame = self.cap.read()
+                    if not ret:
+                        break
+                    self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+                    yellow_mask = self.yellow_det(self.frame_HSV)
+                    blue_mask = self.blue_det(self.frame_HSV)
+                    yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
+                    blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
                     yellow_coords = cv2.findNonZero(yellow_hits)
                     blue_coords = cv2.findNonZero(blue_hits)
-                    if yellow_coords is not None and blue_coords is not None:
-                        break
-            elif blue_coords is None:
-                for i in range(2000, 1600, -50):
-                    self.steer(i)
-                    self.drive(DRIVE_FORWARD)
-                    yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
-                    blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                     mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
-                    yellow_coords = cv2.findNonZero(yellow_hits)
-                    blue_coords = cv2.findNonZero(blue_hits)
                     if yellow_coords is not None and blue_coords is not None:
+                        found = True
                         break
+                if not found:
+                    # Stop robot if line not found after sweeping
+                    self.drive(DRIVE_STOP)
+                    return self.scan_mask, mix_mask, self.prev_pulse  # Or suitable fallback
+
+
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
