@@ -178,7 +178,7 @@ class Vision:
                 #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
                 if midpoint is None:
-                    pass
+                    ang = STEER_CENTER
                 else:
                     ang = self.calculate_ang(midpoint)
         return self.scan_mask, mix_mask, ang
@@ -240,6 +240,7 @@ class Vision:
     def main(self):
         self.__init__(self.lock)
         cap = cv2.VideoCapture(0)
+        self.cap = cap
         self.running = True
         self.pi = pigpio.pi()
         if not self.pi.connected:
