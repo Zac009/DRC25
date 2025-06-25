@@ -164,7 +164,7 @@ class Vision:
                 ang = self.followLine(error)
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                error = blue_mean[0] - int(self.width * 0.66)
+                error = yellow_mean[0] - int(self.width * 0.66)
                 ang = self.followLine(error)
         return self.scan_mask, mix_mask, ang
 
