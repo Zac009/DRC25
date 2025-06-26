@@ -167,6 +167,8 @@ class Vision:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 error = yellow_mean[0] - int(self.width * 0.66)
                 ang = self.followLine(error)
+            else:
+                ang = STEER_CENTER
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
