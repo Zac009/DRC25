@@ -125,6 +125,7 @@ class Vision:
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
+            yellow_coords = None
             blue_coords = cv2.findNonZero(blue_hits)
             one, self.two = self.detect_box(mix_mask)
             if yellow_coords is not None and blue_coords is not None:
