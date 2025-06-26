@@ -274,12 +274,12 @@ class Vision:
                         self.steer(ang)
                         self.drive(DRIVE_CORNER)
                     else:
-                        print("MOCE")
+                        print("MOVE")
                         self.prev_pulse = ang
                         self.drive(DRIVE_FORWARD)
                 except Exception as e:
                     print(e)
-                time.sleep(0.05)
+                time.sleep(0.02)
                 self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
                 with self.lock:
                     self.mask1 = self.combined_mask
