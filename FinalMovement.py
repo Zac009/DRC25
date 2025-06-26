@@ -115,7 +115,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=350)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=700)
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
@@ -263,7 +263,6 @@ class Vision:
 
                 yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
                 blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
-                print("Doesnt move")
                 path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
                 pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)
