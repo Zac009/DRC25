@@ -270,9 +270,11 @@ class Vision:
                 #self.out.write(self.combined_mask)
                 try:
                     if abs(self.prev_pulse - ang) < 40:
+                        print("MOCE")
                         self.steer(ang)
                         self.drive(DRIVE_CORNER)
                     else:
+                        print("MOCE")
                         self.prev_pulse = ang
                         self.drive(DRIVE_FORWARD)
                 except Exception as e:
@@ -297,6 +299,7 @@ class Vision:
                 self.prev_gray = gray
         finally:
             # When everything done, release the capture
+            print("FINISHED")
             self.drive(DRIVE_STOP)
             self.pi.stop()
             cap.release()
