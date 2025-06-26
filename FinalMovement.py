@@ -245,8 +245,8 @@ class Vision:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break 
                 self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-                yellow_mask = self.yellow_det(self.frame_HSV)
-                blue_mask = self.blue_det(self.frame_HSV)
+                yellow_mask = self.yellow_det()
+                blue_mask = self.blue_det()
 
                 # Optional: just to visualize
                 self.combined_mask = np.zeros_like(self.frame)
