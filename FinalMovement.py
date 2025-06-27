@@ -37,6 +37,7 @@ class Vision:
         self.mask1 = None
         self.mask2 = None 
         self.lock = lock
+        self.state = None
 
     def yellow_det(self):
         lower_yellow = np.array([25,50,100])
@@ -125,7 +126,6 @@ class Vision:
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
-            yellow_coords = None
             blue_coords = cv2.findNonZero(blue_hits)
             one, self.two = self.detect_box(mix_mask)
             if yellow_coords is not None and blue_coords is not None:
@@ -157,18 +157,23 @@ class Vision:
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
                 if midpoint is None:
                     ang = STEER_CENTER
+                    print("Center steer!!!")
                 else:
                     ang = self.calculate_ang(midpoint)
+                    print("Midpoint Found!!!")
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 error = blue_mean[0] - int(self.width * 0.66)
                 ang = self.followLine(error)
+                print("No yellow_coords found!!!")
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 error = yellow_mean[0] - int(self.width * 0.66)
                 ang = self.followLine(error)
+                print("No blue_coords found!!!")
             else:
-                ang = STEER_CENTER
+                ang = DRIVE_STOP
+                print("No colors found!!!")
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
@@ -240,7 +245,7 @@ class Vision:
         #self.steer(STEER_CENTER)
         try:
             while True:
-                print("BOOOMs")
+                print("Looping")
                 ret, self.frame = cap.read()
                 self.height, self.width = self.frame.shape[:2]
                 if not ret:
@@ -269,21 +274,30 @@ class Vision:
                 self.frame_count += 1
                 #self.out.write(self.combined_mask)
                 try:
-                    if abs(self.prev_pulse - ang) < 40:
-                        print("MOCE")
+                    if abs(self.prev_pulse - ang) < 30:
+                        print("Drive_Corner")
                         self.steer(ang)
-                        self.drive(DRIVE_CORNER)
+                        if self.state == "CORNER":
+                            pass
+                        else:
+                            self.drive(DRIVE_CORNER)
+                        time.sleep(0.02)
                     else:
-                        print("MOVE")
+                        print("Drive_Forward")
                         self.prev_pulse = ang
-                        self.drive(DRIVE_FORWARD)
+                        if self.state == "FORWARD":
+                            pass
+                        else:
+                            self.drive(DRIVE_FORWARD)
+                            self.state = "FORWARD"
+                        time.sleep(0.02)
                 except Exception as e:
                     print(e)
-                time.sleep(0.02)
-                self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                with self.lock:
+                    self.drive(DRIVE_STOP)
+                #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
+                """with self.lock:
                     self.mask1 = self.combined_mask
-                    self.mask2 = self.frame
+                    self.mask2 = self.frame"""
                 """cv2.imshow('FINAL', self.combined_mask)
                 cv2.imshow('frame', mask3)
                 cv2.moveWindow("frame", 700, 0)
@@ -304,3 +318,7 @@ class Vision:
             self.pi.stop()
             cap.release()
             cv2.destroyAllWindows()
+
+
+Ben = Vision("BLEH")
+Ben.main()
