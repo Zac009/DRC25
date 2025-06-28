@@ -168,7 +168,7 @@ class Vision:
                 print("No yellow_coords found!!!")
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                error = yellow_mean[0] - int(self.width * 0.66)
+                error = yellow_mean[0] + int(self.width * 0.66)
                 ang = self.followLine(error)
                 print("No blue_coords found!!!")
             else:

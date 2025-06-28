@@ -3,6 +3,11 @@ import cv2 as cv2
 import math
 import time
 
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+minLineLength = 25
+maxLineGap = 10
+
+
 class Vision:
     def __init__(self, lock):
         self.frame_count = 0
@@ -225,6 +230,27 @@ class Vision:
 
             yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
             blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
+                # Clean up mask
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+            new_mask = np.zeros_like(blue_mask)
+
+            # --- LINE DETECTION ---
+            edges = cv2.Canny(mask, 50, 150, apertureSize=3)
+            lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=minLineLength, maxLineGap=maxLineGap)
+
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = line[0]
+                    cv2.line(new_mask, (x1, y1), (x2, y2), 255, 2)  # green lines
+
+            # --- CURVE / CONTOUR DETECTION ---
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            for cnt in contours:
+                area = cv2.contourArea(cnt)
+                if area > 250:  # adjust threshold as needed
+                    cv2.drawContours(new_mask, [cnt], -1, 255, 2)
+
+            #HERE
             path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
             pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
             cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)
@@ -242,22 +268,25 @@ class Vision:
             except Exception as e:
                 print(e)
             self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-            with self.lock:
+            """with self.lock:
                 self.mask1 = self.combined_mask
-                self.mask2 = self.frame
+                self.mask2 = self.frame"""
             """cv2.imshow('FINAL', self.combined_mask)
             cv2.imshow('frame', mask3)
             cv2.moveWindow("frame", 700, 0)
-            cv2.imshow('frame2', self.frame)
+            cv2.imshow('frame2', self.frame)"""
             cv2.imshow('frame3', self.combined_mask)
             cv2.moveWindow("frame3", 0, 500)
             if cv2.waitKey(0) == ord('q'): #Make this relate to the stop button
-                break"""
-            if not self.running:
-                print("Process Stopped...")
                 break
+            """if not self.running:
+                print("Process Stopped...")
+                break"""
             self.prev_gray = gray
         
         # When everything done, release the capture
         cap.release()
         cv2.destroyAllWindows()
+
+Ben = Vision("BLEH")
+Ben.main()
