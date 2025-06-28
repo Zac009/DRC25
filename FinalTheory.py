@@ -144,7 +144,8 @@ class Vision:
                     pass
                 elif blue_coords is None:
                     pass
-        ang = self.calculate_ang(midpoint)
+        #ang = self.calculate_ang(midpoint)
+        ang = 1500
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
@@ -201,7 +202,7 @@ class Vision:
     
     def main(self):
         self.__init__(self.lock)
-        cap = cv2.VideoCapture('qut_demo.mov')
+        cap = cv2.VideoCapture(0)
         self.running = True
         if not cap.isOpened():
             print("Cannot open camera")

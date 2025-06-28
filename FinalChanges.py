@@ -32,7 +32,7 @@ class Vision:
         self.r_height = 300
         self.prev_gray = None
         self.prev_points = None
-        self.prev_pulse = 1500
+        self.prev_pulse = 1550
         self.running = False
         self.mask1 = None
         self.mask2 = None 
@@ -55,14 +55,7 @@ class Vision:
         lower_green = np.array([35, 100, 100])
         upper_green = np.array([85, 255, 255])
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
-        self.drive(DRIVE_STOP)
         return green_mask
-    
-    def steer(self,pulse):
-        self.pi.set_servo_pulsewidth(STEER_PIN, pulse)
-
-    def drive(self, pulse):
-        self.pi.set_servo_pulsewidth(DRIVE_PIN, pulse)
     
     def calculate_ang(self, mid):
         temp1 = self.width/2
@@ -87,6 +80,15 @@ class Vision:
         perp = (-dy, dx)
         left = (int(start_point[0] + perp[0] * length), int(start_point[1] + perp[1] * length))
         right = (int(start_point[0] - perp[0] * length), int(start_point[1] - perp[1] * length))
+        #Change to do the whole frame of the video
+
+
+
+
+
+
+
+        
         return left, right
     
     def rotate_direction(self, direction, angle_degrees):
@@ -116,7 +118,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=1500)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=300)
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
@@ -127,7 +129,7 @@ class Vision:
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
-            one, self.two = self.detect_box(mix_mask)
+            #one, self.two = self.detect_box(mix_mask)
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -135,6 +137,8 @@ class Vision:
                 midpoint_x = int((yellow_mean[0] + blue_mean[0]) / 2)
                 midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
                 midpoint = (midpoint_x, midpoint_y)
+                print(blue_mean)
+                print(midpoint_x)
                 #self.green_det(midpoint)
                 self.center_points.append(midpoint)
                 if midpoint_old is not None:
@@ -162,16 +166,24 @@ class Vision:
                     ang = self.calculate_ang(midpoint)
                     print("Midpoint Found!!!")
             elif blue_coords is not None:
-                blue_mean = np.mean(blue_coords, axis=0)[0]
-                error = blue_mean[0] - int(self.width * 0.66)
-                ang = self.followLine(error)
+                blue_mean = np.mean(yellow_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
-                #Change all of this to create a new midpoint that is xx before the blue line, test with this for now
+                midpoint_x = int(blue_mean[0]) + 100
+                midpoint_y = 180
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                ang = self.calculate_ang(midpoint)
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                error = yellow_mean[0] + int(self.width * 0.66)
-                ang = self.followLine(error)
                 print("No blue_coords found!!!")
+                midpoint_x = int(yellow_mean[0]) + 100
+                midpoint_y = 180
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                ang = self.calculate_ang(midpoint)
+                #180
             else:
                 ang = DRIVE_STOP
                 print("No colors found!!!")
@@ -232,94 +244,72 @@ class Vision:
         pass
     
     def main(self):
-        self.__init__(self.lock)
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture("output8.mp4")
         self.cap = cap
         self.running = True
-        self.pi = pigpio.pi()
-        if not self.pi.connected:
-            print("Pi is not running")
-            exit()
         if not cap.isOpened():
             print("Cannot open camera")
             exit()
         #self.steer(STEER_CENTER)
-        try:
-            while True:
-                print("Looping")
-                ret, self.frame = cap.read()
-                self.height, self.width = self.frame.shape[:2]
-                if not ret:
-                    print("Can't receive frame (stream end?). Exiting ...")
-                    break 
-                self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-                yellow_mask = self.yellow_det()
-                blue_mask = self.blue_det()
+        while True:
+            ret, self.frame = cap.read()
+            self.height, self.width = self.frame.shape[:2]
+            if not ret:
+                print("Can't receive frame (stream end?). Exiting ...")
+                break 
+            self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+            yellow_mask = self.yellow_det()
+            blue_mask = self.blue_det()
 
-                # Optional: just to visualize
-                self.combined_mask = np.zeros_like(self.frame)
-                self.combined_mask = cv2.add(yellow_mask, blue_mask)
-                self.scan_mask = np.zeros_like(self.combined_mask)
-                gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
+            # Optional: just to visualize
+            self.combined_mask = np.zeros_like(self.frame)
+            self.combined_mask = cv2.add(yellow_mask, blue_mask)
+            self.scan_mask = np.zeros_like(self.combined_mask)
+            gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
-                # Track frame motion and calculate displacement
-                if self.prev_gray is not None:
-                    dx, dy = self.track_frame_motion(self.prev_gray, gray)
-                    self.center_points = [(cx + dx, cy + dy) for cx, cy in self.center_points]
+            # Track frame motion and calculate displacement
+            if self.prev_gray is not None:
+                dx, dy = self.track_frame_motion(self.prev_gray, gray)
+                self.center_points = [(cx + dx, cy + dy) for cx, cy in self.center_points]
 
-                yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
-                blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
-                path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
-                """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
-                cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)"""
-                self.frame_count += 1
-                #self.out.write(self.combined_mask)
-                print(ang)
-                try:
-                    if abs(self.prev_pulse - ang) > 30:
-                        print("Drive_Corner")
-                        self.steer(ang)
-                        self.prev_pulse = ang
-                        if self.state == "CORNER":
-                            pass
-                        else:
-                            self.drive(DRIVE_CORNER)
-                        time.sleep(0.02)
-                    else:
-                        print("Drive_Forward")
-                        if self.state == "FORWARD":
-                            pass
-                        else:
-                            self.drive(DRIVE_FORWARD)
-                            self.state = "FORWARD"
-                        time.sleep(0.02)
-                except Exception as e:
-                    print(f"There was an error: {e}")
-                    self.drive(DRIVE_STOP)
-                #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                """with self.lock:
-                    self.mask1 = self.combined_mask
-                    self.mask2 = self.frame"""
-                """cv2.imshow('FINAL', self.combined_mask)
-                cv2.imshow('frame', mask3)
-                cv2.moveWindow("frame", 700, 0)
-                purple_mask = self.detect_box(self.frame)
-                cv2.imshow('frame2', self.frame)
-                cv2.imshow('frame3', self.combined_mask)
-                cv2.moveWindow("frame3", 0, 500)
-                if cv2.waitKey(1) == ord('q'): #For non webserver testing.
-                    break"""
-                if not self.running:
-                    print("Process Stopped...")
-                    break
-                self.prev_gray = gray
-        finally:
-            # When everything done, release the capture
-            print("FINISHED")
-            self.drive(DRIVE_STOP)
-            self.pi.stop()
-            cap.release()
-            cv2.destroyAllWindows()
+            yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
+            blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
+            path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
+            pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
+            cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)
+            self.frame_count += 1
+            #self.out.write(self.combined_mask)
+            if abs(self.prev_pulse - ang) > 30:
+                print(f"Previous value {self.prev_pulse}: New value {ang}")
+                print("Drive_Corner")
+                self.prev_pulse = ang
+                if self.state == "CORNER":
+                    pass
+                else:
+                    pass
+                #time.sleep(0.02)
+            else:
+                print("Drive_Forward")
+                print(f"Previous value {self.prev_pulse}: New value {ang}")
+                if self.state == "FORWARD":
+                    pass
+                else:
+                    self.state = "FORWARD"
+                #time.sleep(0.02)
+            #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
+            cv2.imshow('FINAL', self.combined_mask)
+            """
+            purple_mask = self.detect_box(self.frame)
+            cv2.imshow('frame2', self.frame)
+            cv2.imshow('frame3', self.combined_mask)
+            cv2.moveWindow("frame3", 0, 500)
+            if cv2.waitKey(1) == ord('q'): #For non webserver testing.
+                break"""
+            if cv2.waitKey(1) == ord('q'):
+                break
+            self.prev_gray = gray
+        cap.release()
+        cv2.destroyAllWindows()
 
 
 Ben = Vision("BLEH")
