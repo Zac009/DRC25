@@ -111,7 +111,7 @@ class Vision:
     def adaptive_centerline(self, mask_yellow, mask_blue, num_steps=1, step_size=10):
         w, h = mask_yellow.shape
         se = w/2
-        position = (h/2, se)
+        position = (h/2, se) #If I need to change the positioning of the scan line
         direction = self.get_initial_heading()
         midpoint_old = None
         midpoint = None
