@@ -33,7 +33,9 @@ try:
 
     print("Returning to center (1500)")
     pi.set_servo_pulsewidth(STEER_PIN, 1500)
-    time.sleep(1)
+    time.sleep(3)
+    pi.set_servo_pulsewidth(STEER_PIN, 1550)
+    time.sleep(3)
 
 finally:
     print("Turning off servo signal.")
