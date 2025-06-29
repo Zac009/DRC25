@@ -33,6 +33,7 @@ class Vision:
         self.mask1 = None
         self.mask2 = None 
         self.lock = lock
+        self.brake = False
         self.state = None
 
     def yellow_det(self):
@@ -184,8 +185,12 @@ class Vision:
                 ang = self.calculate_ang(midpoint)
                 #180
             else:
-                ang = 0
                 print("No colors found!!!")
+                ang = 2000
+                if self.brake == False:
+                    self.brake = True
+                else:
+                    ang = 0
         return self.scan_mask, mix_mask, ang
 
     def track_frame_motion(self, prev, gray):
