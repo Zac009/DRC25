@@ -288,7 +288,7 @@ class Vision:
                     if ang == 0:
                         self.running = False
                     else:
-                        if abs(self.prev_pulse - ang) > 30:
+                        if abs(self.prev_pulse - ang) > 50:
                             self.steer(ang)
                             self.prev_pulse = ang
                             if self.state == "CORRRNER":
@@ -297,7 +297,7 @@ class Vision:
                                 print("Corner")
                                 self.drive(DRIVE_CORNER)
                                 self.state = "CORNER"
-                            time.sleep(0.75)
+                            time.sleep(0.5)
                             self.drive(DRIVE_STOP)
                         else:
                             if self.state == "FORWARRRD":
