@@ -74,9 +74,21 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=10000)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=2000)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
             cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
+        blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+        mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
+        blue_coords = cv2.findNonZero(blue_hits)    
+        if blue_coords is not None:
+            blue_mean = np.mean(blue_coords, axis=0)[0]
+            print("No yellow_coords found!!!")
+            #midpoint_x = int(blue_mean[0]) - (self.width // 4)
+            midpoint_x = int(blue_mean[0]) - 300
+            midpoint_y = 180
+            midpoint = (midpoint_x, midpoint_y)
+            self.center_points.append(midpoint)
+            cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
             
     
     def main(self):
@@ -103,6 +115,7 @@ class Vision:
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
             self.adaptive_centerline(yellow_mask, blue_mask)
+            
             with self.lock:
                 self.mask1 = self.combined_mask
                 self.mask2 = self.frame
