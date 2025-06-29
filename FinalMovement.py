@@ -303,7 +303,7 @@ class Vision:
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
                             time.sleep(0.01)
-                    except Exception as e:
+                except Exception as e:
                         print(f"There was an error: {e}")
                         self.drive(DRIVE_STOP)
                 #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
