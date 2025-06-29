@@ -162,7 +162,7 @@ class Vision:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
                 #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                midpoint_x = int(blue_mean[0]) - 500
+                midpoint_x = int(blue_mean[0]) - 800
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
@@ -306,7 +306,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            time.sleep(1)
+                            time.sleep(1.5)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
