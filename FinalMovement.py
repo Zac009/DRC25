@@ -188,6 +188,7 @@ class Vision:
                 print("No colors found!!!")
                 ang = 2000
                 if self.brake == False:
+                    self.drive(0.5)
                     self.brake = True
                 else:
                     ang = 0
