@@ -51,7 +51,6 @@ class Vision:
         lower_green = np.array([35, 100, 100])
         upper_green = np.array([85, 255, 255])
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
-        self.drive(DRIVE_STOP)
         return green_mask
     
     def steer(self,pulse):
@@ -121,11 +120,17 @@ class Vision:
             # Mask and get pixel hits
             yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+            green_mask = self.green_det()
+            green_hits = cv2.bitwise_and(green_mask, self.scan_mask)
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
+            green_coords = cv2.findNonZero(green_hits)
             #one, self.two = self.detect_box(mix_mask)
-            if yellow_coords is not None and blue_coords is not None:
+            if green_coords is not None:
+                ang = 0
+                print("End Line Found")
+            elif yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 # Midpoint
@@ -306,7 +311,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            time.sleep(0.5)
+                            time.sleep(1)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
