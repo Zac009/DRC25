@@ -162,16 +162,24 @@ class Vision:
                     ang = self.calculate_ang(midpoint)
                     print("Midpoint Found!!!")
             elif blue_coords is not None:
-                blue_mean = np.mean(blue_coords, axis=0)[0]
-                error = blue_mean[0] - int(self.width * 0.66)
-                ang = self.followLine(error)
+                blue_mean = np.mean(yellow_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
-                #Change all of this to create a new midpoint that is xx before the blue line, test with this for now
+                midpoint_x = int(blue_mean[0]) + 100
+                midpoint_y = 180
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                ang = self.calculate_ang(midpoint)
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                error = yellow_mean[0] + int(self.width * 0.66)
-                ang = self.followLine(error)
                 print("No blue_coords found!!!")
+                midpoint_x = int(yellow_mean[0]) + 100
+                midpoint_y = 180
+                midpoint = (midpoint_x, midpoint_y)
+                self.center_points.append(midpoint)
+                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                ang = self.calculate_ang(midpoint)
+                #180
             else:
                 ang = DRIVE_STOP
                 print("No colors found!!!")
