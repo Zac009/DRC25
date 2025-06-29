@@ -78,7 +78,6 @@ class Vision:
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
             cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
-        mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
         blue_coords = cv2.findNonZero(blue_hits)    
         if blue_coords is not None:
             blue_mean = np.mean(blue_coords, axis=0)[0]
