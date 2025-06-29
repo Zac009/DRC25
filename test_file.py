@@ -87,7 +87,7 @@ class Vision:
             midpoint_y = 180
             midpoint = (midpoint_x, midpoint_y)
             self.center_points.append(midpoint)
-            cv2.circle(self.mask3, midpoint, 3, (255, 255, 255), -1)
+            cv2.circle(self.mask3, midpoint, 10, (255, 255, 255), -1)
             
     
     def main(self):
