@@ -191,7 +191,7 @@ class Vision:
                     self.drive(DRIVE_CORNER)
                     time.sleep(1)
                     self.steer(ang)
-                    self.sleep(1)
+                    time.sleep(1)
                     self.brake = True
                     ang = 1550
                 else:
