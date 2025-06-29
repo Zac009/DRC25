@@ -163,7 +163,7 @@ class Vision:
                     ang = self.calculate_ang(midpoint)
                     print("Midpoint Found!!!")
             elif blue_coords is not None:
-                blue_mean = np.mean(yellow_coords, axis=0)[0]
+                blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
                 midpoint_x = int(blue_mean[0]) + 100
                 midpoint_y = 180
