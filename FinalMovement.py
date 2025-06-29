@@ -165,7 +165,7 @@ class Vision:
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
-                midpoint_x = int(blue_mean[0]) - 100 
+                midpoint_x = int(blue_mean[0]) - 300
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
