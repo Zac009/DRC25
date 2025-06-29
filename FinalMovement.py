@@ -1,7 +1,6 @@
 import numpy as np
 import cv2 as cv2
 import math
-from math import atan2, cos, sin, sqrt, pi
 import time
 import pigpio
 
@@ -21,11 +20,7 @@ DRIVE_BACKWARD = 1400
 
 class Vision:
     def __init__(self, lock):
-        self.frame_count = 0
         self.center_points = []
-        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        """self.height, self.width = self.frame.shape[:2]
-        self.out = cv2.VideoWriter('output20.avi', self.fourcc, 20.0, (self.width, self.height))"""
         self.threshold1 = 85
         self.threshold2 = 85
         self.r_width = 500
@@ -117,7 +112,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=10000)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=2000)
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
@@ -128,7 +123,7 @@ class Vision:
             mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
             yellow_coords = cv2.findNonZero(yellow_hits)
             blue_coords = cv2.findNonZero(blue_hits)
-            one, self.two = self.detect_box(mix_mask)
+            #one, self.two = self.detect_box(mix_mask)
             if yellow_coords is not None and blue_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -165,6 +160,7 @@ class Vision:
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
+                #midpoint_x = int(blue_mean[0]) - (self.width // 4)
                 midpoint_x = int(blue_mean[0]) - 300
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
@@ -174,7 +170,7 @@ class Vision:
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 print("No blue_coords found!!!")
-                midpoint_x = int(yellow_mean[0]) + 100
+                midpoint_x = int(yellow_mean[0]) + 300
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
@@ -246,6 +242,12 @@ class Vision:
         self.cap = cap
         self.running = True
         self.pi = pigpio.pi()
+        # Get first valid frame
+        ret, self.frame = cap.read()
+        if not ret:
+            print("Can't receive initial frame. Exiting ...")
+            return
+        self.height, self.width = self.frame.shape[:2]
         if not self.pi.connected:
             print("Pi is not running")
             exit()
@@ -257,7 +259,6 @@ class Vision:
             while True:
                 print("Looping")
                 ret, self.frame = cap.read()
-                self.height, self.width = self.frame.shape[:2]
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break 
@@ -276,8 +277,6 @@ class Vision:
                     dx, dy = self.track_frame_motion(self.prev_gray, gray)
                     self.center_points = [(cx + dx, cy + dy) for cx, cy in self.center_points]
 
-                yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
-                blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
                 path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
                 """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)"""
@@ -295,6 +294,7 @@ class Vision:
                                 pass
                             else:
                                 self.drive(DRIVE_CORNER)
+                                self.state = "CORNER"
                             time.sleep(0.01)
                         else:
                             if self.state == "FORWARD":
@@ -307,18 +307,6 @@ class Vision:
                         print(f"There was an error: {e}")
                         self.drive(DRIVE_STOP)
                 #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
-                """with self.lock:
-                    self.mask1 = self.combined_mask
-                    self.mask2 = self.frame"""
-                """cv2.imshow('FINAL', self.combined_mask)
-                cv2.imshow('frame', mask3)
-                cv2.moveWindow("frame", 700, 0)
-                purple_mask = self.detect_box(self.frame)
-                cv2.imshow('frame2', self.frame)
-                cv2.imshow('frame3', self.combined_mask)
-                cv2.moveWindow("frame3", 0, 500)
-                if cv2.waitKey(1) == ord('q'): #For non webserver testing.
-                    break"""
                 if not self.running:
                     print("Process Stopped...")
                     break
