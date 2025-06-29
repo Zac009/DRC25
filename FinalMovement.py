@@ -296,6 +296,7 @@ class Vision:
                             else:
                                 self.drive(DRIVE_CORNER)
                                 self.state = "CORNER"
+                            self.drive(DRIVE_STOP)
                             time.sleep(0.01)
                         else:
                             if self.state == "FORWARD":
