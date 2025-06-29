@@ -285,7 +285,7 @@ class Vision:
                 #self.out.write(self.combined_mask)
                 print(ang)
                 try:
-                    if ang = 0:
+                    if ang == 0:
                         self.running = False
                     else:
                         if abs(self.prev_pulse - ang) > 30:
