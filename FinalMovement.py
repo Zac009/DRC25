@@ -297,7 +297,7 @@ class Vision:
                                 print("Corner")
                                 self.drive(DRIVE_CORNER)
                                 self.state = "CORNER"
-                            time.sleep(0.5)
+                            time.sleep(0.75)
                             self.drive(DRIVE_STOP)
                         else:
                             if self.state == "FORWARRRD":
@@ -306,7 +306,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            time.sleep(0.5)
+                            time.sleep(1)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
