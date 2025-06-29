@@ -81,6 +81,7 @@ class Vision:
         left = (int(start_point[0] + perp[0] * length), int(start_point[1] + perp[1] * length))
         right = (int(start_point[0] - perp[0] * length), int(start_point[1] - perp[1] * length))
         #Change to do the whole frame of the video
+        print(str(left) + " " + str(right))
         return left, right
     
     def rotate_direction(self, direction, angle_degrees):

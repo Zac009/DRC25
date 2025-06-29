@@ -72,6 +72,7 @@ class Vision:
         perp = (-dy, dx)
         left = (int(start_point[0] + perp[0] * length), int(start_point[1] + perp[1] * length))
         right = (int(start_point[0] - perp[0] * length), int(start_point[1] - perp[1] * length))
+        print(left + " " + right)
         return left, right
     
     def rotate_direction(self, direction, angle_degrees):

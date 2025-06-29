@@ -87,6 +87,7 @@ class Vision:
         perp = (-dy, dx)
         left = (int(start_point[0] + perp[0] * length), int(start_point[1] + perp[1] * length))
         right = (int(start_point[0] - perp[0] * length), int(start_point[1] - perp[1] * length))
+        #To change the height change the second value of the actual left and right points
         return left, right
     
     def rotate_direction(self, direction, angle_degrees):
@@ -116,7 +117,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=1500)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=1000)
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
@@ -285,7 +286,6 @@ class Vision:
                 print(ang)
                 try:
                     if abs(self.prev_pulse - ang) > 30:
-                        print("Drive_Corner")
                         self.steer(ang)
                         self.prev_pulse = ang
                         if self.state == "CORNER":
@@ -294,7 +294,6 @@ class Vision:
                             self.drive(DRIVE_CORNER)
                         time.sleep(0.02)
                     else:
-                        print("Drive_Forward")
                         if self.state == "FORWARD":
                             pass
                         else:
