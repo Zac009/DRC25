@@ -303,6 +303,7 @@ class Vision:
                             else:
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
+                            self.drive(DRIVE_STOP)
                             time.sleep(0.01)
                 except Exception as e:
                     print(f"There was an error: {e}")
