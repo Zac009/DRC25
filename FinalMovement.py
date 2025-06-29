@@ -162,7 +162,7 @@ class Vision:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
                 #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                midpoint_x = int(blue_mean[0]) - 800
+                midpoint_x = int(blue_mean[0]) - 300
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
@@ -288,7 +288,7 @@ class Vision:
                     if ang == 0:
                         self.running = False
                     else:
-                        if abs(self.prev_pulse - ang) > 50:
+                        if abs(self.prev_pulse - ang) > 30:
                             self.steer(ang)
                             self.prev_pulse = ang
                             if self.state == "CORRRNER":
@@ -306,7 +306,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            time.sleep(1.5)
+                            time.sleep(0.5)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
