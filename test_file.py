@@ -74,7 +74,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=350)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=1000)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
             cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
             
