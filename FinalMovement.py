@@ -189,8 +189,11 @@ class Vision:
                 ang = 2000
                 if self.brake == False:
                     self.drive(DRIVE_CORNER)
-                    time.sleep(1.5)
+                    time.sleep(1)
+                    self.steer(ang)
+                    self.sleep(1)
                     self.brake = True
+                    ang = 1550
                 else:
                     ang = 0
         return self.scan_mask, mix_mask, ang
