@@ -104,7 +104,7 @@ class Vision:
             self.scan_mask = np.zeros_like(self.combined_mask)
             self.adaptive_centerline(yellow_mask, blue_mask)
             with self.lock:
-                self.mask1 = blue_mask
+                self.mask1 = self.combined_mask
                 self.mask2 = self.frame
             if not self.running:
                 print("Process Stopped...")
