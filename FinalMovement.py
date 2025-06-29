@@ -15,7 +15,7 @@ STEER_CENTER = 1550
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1580
+DRIVE_FORWARD = 1600
 DRIVE_CORNER = 1560
 DRIVE_BACKWARD = 1400
 
@@ -165,7 +165,7 @@ class Vision:
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 print("No yellow_coords found!!!")
-                midpoint_x = int(blue_mean[0]) + 100
+                midpoint_x = int(blue_mean[0]) - 100 
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
