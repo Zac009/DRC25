@@ -11,7 +11,7 @@ DRIVE_PIN = 16
 
 # Servo pulse values
 STEER_LEFT = 1000
-STEER_CENTER = 1550
+STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
@@ -182,7 +182,7 @@ class Vision:
                 ang = self.calculate_ang(midpoint)
                 #180
             else:
-                ang = DRIVE_STOP
+                ang = 0
                 print("No colors found!!!")
         return self.scan_mask, mix_mask, ang
 
@@ -285,24 +285,27 @@ class Vision:
                 #self.out.write(self.combined_mask)
                 print(ang)
                 try:
-                    if abs(self.prev_pulse - ang) > 30:
-                        self.steer(ang)
-                        self.prev_pulse = ang
-                        if self.state == "CORNER":
-                            pass
-                        else:
-                            self.drive(DRIVE_CORNER)
-                        time.sleep(0.02)
+                    if ang = 0:
+                        self.running = False
                     else:
-                        if self.state == "FORWARD":
-                            pass
+                        if abs(self.prev_pulse - ang) > 30:
+                            self.steer(ang)
+                            self.prev_pulse = ang
+                            if self.state == "CORNER":
+                                pass
+                            else:
+                                self.drive(DRIVE_CORNER)
+                            time.sleep(0.01)
                         else:
-                            self.drive(DRIVE_FORWARD)
-                            self.state = "FORWARD"
-                        time.sleep(0.02)
-                except Exception as e:
-                    print(f"There was an error: {e}")
-                    self.drive(DRIVE_STOP)
+                            if self.state == "FORWARD":
+                                pass
+                            else:
+                                self.drive(DRIVE_FORWARD)
+                                self.state = "FORWARD"
+                            time.sleep(0.01)
+                    except Exception as e:
+                        print(f"There was an error: {e}")
+                        self.drive(DRIVE_STOP)
                 #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
                 """with self.lock:
                     self.mask1 = self.combined_mask
