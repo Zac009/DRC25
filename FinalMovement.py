@@ -20,6 +20,7 @@ DRIVE_BACKWARD = 1400
 
 class Vision:
     def __init__(self, lock):
+        self.frame_count = 0
         self.center_points = []
         self.threshold1 = 85
         self.threshold2 = 85
@@ -116,7 +117,7 @@ class Vision:
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
-            cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
+            #cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
             # Mask and get pixel hits
             yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
@@ -147,7 +148,7 @@ class Vision:
                     se -= step_size
                     position = (midpoint[0], se)
                 midpoint_old = midpoint
-                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 cv2.circle(mix_mask, midpoint, 3, (255, 255, 255), -1)
                 #cv2.circle(combined_mask, (int(yellow_mean[0]), int(yellow_mean[1])), 3, (255, 255, 255), 5)
                 #cv2.circle(combined_mask, (int(blue_mean[0]), int(blue_mean[1])), 3, (255, 255, 255), 5)
@@ -165,7 +166,7 @@ class Vision:
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
-                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
@@ -174,7 +175,7 @@ class Vision:
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
                 self.center_points.append(midpoint)
-                cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+                #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
                 #180
             else:
@@ -237,7 +238,7 @@ class Vision:
         pass
     
     def main(self):
-        self.__init__(self.lock)
+        #self.__init__(self.lock)
         cap = cv2.VideoCapture(0)
         self.cap = cap
         self.running = True
@@ -267,9 +268,9 @@ class Vision:
                 blue_mask = self.blue_det()
 
                 # Optional: just to visualize
-                self.combined_mask = np.zeros_like(self.frame)
-                self.combined_mask = cv2.add(yellow_mask, blue_mask)
-                self.scan_mask = np.zeros_like(self.combined_mask)
+                #self.combined_mask = np.zeros_like(self.frame)
+                #self.combined_mask = cv2.add(yellow_mask, blue_mask)
+                self.scan_mask = np.zeros_like(self.frame[:, :, 0])
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
                 # Track frame motion and calculate displacement
@@ -304,13 +305,17 @@ class Vision:
                                 self.state = "FORWARD"
                             time.sleep(0.01)
                 except Exception as e:
-                        print(f"There was an error: {e}")
-                        self.drive(DRIVE_STOP)
+                    print(f"There was an error: {e}")
+                    self.drive(DRIVE_STOP)
                 #self.combined_mask = cv2.bitwise_or(self.two, self.combined_mask)
                 if not self.running:
                     print("Process Stopped...")
                     break
                 self.prev_gray = gray
+        except KeyboardInterrupt:
+                print("Interrupted by user")
+                self.running = False
+                self.drive(DRIVE_STOP)
         finally:
             # When everything done, release the capture
             print("FINISHED")
