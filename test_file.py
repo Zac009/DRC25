@@ -87,7 +87,7 @@ class Vision:
             midpoint_y = 180
             midpoint = (midpoint_x, midpoint_y)
             self.center_points.append(midpoint)
-            cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
+            cv2.circle(self.mask3, midpoint, 3, (255, 255, 255), -1)
             
     
     def main(self):
@@ -111,12 +111,13 @@ class Vision:
 
             # Optional: just to visualize
             self.combined_mask = np.zeros_like(self.frame)
+            self.mask3 = np.zeros_like(self.frame)
             self.combined_mask = cv2.add(yellow_mask, blue_mask)
             self.scan_mask = np.zeros_like(self.combined_mask)
             self.adaptive_centerline(yellow_mask, blue_mask)
             
             with self.lock:
-                self.mask1 = self.combined_mask
+                self.mask1 = self.mask3
                 self.mask2 = self.frame
             if not self.running:
                 print("Process Stopped...")
