@@ -192,7 +192,7 @@ class Vision:
                     var = int(var)
                     for i in range(var):
                         self.steer(1750)
-                        self.drive(STEER_CORNER)
+                        self.drive(DRIVE_CORNER)
                         time.sleep(0.2)
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
