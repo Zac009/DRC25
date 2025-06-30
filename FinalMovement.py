@@ -192,7 +192,7 @@ class Vision:
                     var = int(var)
                     print(f"This is the variable: {var}")
                     self.drive(DRIVE_CORNER)
-                    time.sleep(0.5)
+                    time.sleep(0.4)
                     for i in range(4):
                         ret, self.frame = self.cap.read()
                         self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
@@ -205,7 +205,7 @@ class Vision:
                         mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
                         if blue_coords is not None:
                             blue_mean = np.mean(blue_coords, axis=0)[0]
-                            print("boom")
+                            print("boom\n")
                             #midpoint_x = int(blue_mean[0]) - (self.width // 4)
                             midpoint_x = int(blue_mean[0]) - 500
                             midpoint_y = 180
@@ -292,7 +292,6 @@ class Vision:
         #self.steer(STEER_CENTER)
         try:
             while True:
-                print("Looping")
                 ret, self.frame = self.cap.read()
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
