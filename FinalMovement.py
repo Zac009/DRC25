@@ -212,6 +212,9 @@ class Vision:
                             midpoint = (midpoint_x, midpoint_y)
                             self.center_points.append(midpoint)
                             ang = self.calculate_ang(midpoint)
+                            if ang >= 1650 or ang <= 1450:
+                                self.drive(DRIVE_CORNER)
+                                time.sleep(1)
                             break
                 else:
                     ang = 0
