@@ -113,7 +113,7 @@ class Vision:
         midpoint_old = None
         midpoint = None
         for _ in range(num_steps):
-            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=2000)
+            left_pt, right_pt = self.get_perpendicular_scan(position, direction, length=5000)
             # Create scanline as a mask
             #cv2.line(scan_mask, (10,vals[1]), (490,vals[3]), 255, 1)
             cv2.line(self.scan_mask, left_pt, right_pt, 255, 1)
@@ -185,15 +185,26 @@ class Vision:
                 ang = self.calculate_ang(midpoint)
                 #180
             else:
-                print("No colors found!!!")
-                ang = 2000
                 if self.brake == False:
-                    self.drive(DRIVE_CORNER)
-                    time.sleep(1.5)
-                    self.steer(ang)
-                    time.sleep(1.5)
-                    self.brake = True
-                    ang = 1550
+                    print("No colors found!!!")
+                    var = 2000 - self.prev_pulse
+                    var /= 100
+                    var = int(var)
+                    for i in range(var):
+                        self.steer(1750)
+                        self.drive(STEER_CORNER)
+                        time.sleep(0.2)
+                        blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+                        blue_coords = cv2.findNonZero(blue_hits)
+                        if blue_coords is not None:
+                            blue_mean = np.mean(blue_coords, axis=0)[0]
+                            print("No yellow_coords found!!!")
+                            #midpoint_x = int(blue_mean[0]) - (self.width // 4)
+                            midpoint_x = int(blue_mean[0]) - 500
+                            midpoint_y = 180
+                            midpoint = (midpoint_x, midpoint_y)
+                            self.center_points.append(midpoint)
+                            break
                 else:
                     ang = 0
         return self.scan_mask, mix_mask, ang
