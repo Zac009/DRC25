@@ -194,7 +194,7 @@ class Vision:
                     self.drive(DRIVE_CORNER)
                     time.sleep(0.5)
                     for i in range(6):
-                        ret, self.frame = cap.read()
+                        ret, self.frame = self.cap.read()
                         self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
                         self.steer(1850)
                         self.drive(DRIVE_CORNER)
@@ -293,7 +293,7 @@ class Vision:
         try:
             while True:
                 print("Looping")
-                ret, self.frame = cap.read()
+                ret, self.frame = self.cap.read()
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break 
