@@ -190,10 +190,12 @@ class Vision:
                     var = 2000 - self.prev_pulse
                     var /= 100
                     var = int(var)
+                    print(f"This is the variable: {var}")
                     for i in range(var):
+                        print(var)
                         self.steer(1750)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.2)
+                        time.sleep(0.5)
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
                         mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
