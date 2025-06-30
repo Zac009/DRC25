@@ -193,12 +193,12 @@ class Vision:
                     print(f"This is the variable: {var}")
                     self.drive(DRIVE_CORNER)
                     time.sleep(0.4)
-                    for i in range(4):
+                    for i in range(10):
                         ret, self.frame = self.cap.read()
                         self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
                         self.steer(1900)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.5)
+                        time.sleep(0.3)
                         blue_mask = self.blue_det()
                         blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
