@@ -198,7 +198,8 @@ class Vision:
                         self.steer(1850)
                         self.drive(DRIVE_CORNER)
                         time.sleep(0.5)
-                        blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+                        blue_mask = self.blue_det()
+                        blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
                         mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
                         if blue_coords is not None:
