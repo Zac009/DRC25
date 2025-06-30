@@ -194,7 +194,7 @@ class Vision:
                     for i in range(6):
                         print(var)
                         self.drive(DRIVE_CORNER)
-                        self.sleep(0.5)
+                        time.sleep(0.5)
                         self.steer(1850)
                         self.drive(DRIVE_CORNER)
                         time.sleep(0.5)
