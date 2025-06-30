@@ -196,6 +196,7 @@ class Vision:
                         time.sleep(0.2)
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
+                        mix_mask = cv2.bitwise_or(yellow_hits, blue_hits)
                         if blue_coords is not None:
                             blue_mean = np.mean(blue_coords, axis=0)[0]
                             print("No yellow_coords found!!!")
