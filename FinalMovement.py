@@ -192,8 +192,8 @@ class Vision:
                     var = int(var)
                     print(f"This is the variable: {var}")
                     self.drive(DRIVE_CORNER)
-                    time.sleep(0.3)
-                    for i in range(5):
+                    time.sleep(0.5)
+                    for i in range(4):
                         ret, self.frame = self.cap.read()
                         self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
                         self.steer(1900)
