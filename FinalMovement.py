@@ -191,10 +191,11 @@ class Vision:
                     var /= 100
                     var = int(var)
                     print(f"This is the variable: {var}")
+                    self.drive(DRIVE_CORNER)
+                    time.sleep(0.5)
                     for i in range(6):
-                        print(var)
-                        self.drive(DRIVE_CORNER)
-                        time.sleep(0.5)
+                        ret, self.frame = cap.read()
+                        self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
                         self.steer(1850)
                         self.drive(DRIVE_CORNER)
                         time.sleep(0.5)
@@ -210,6 +211,7 @@ class Vision:
                             midpoint_y = 180
                             midpoint = (midpoint_x, midpoint_y)
                             self.center_points.append(midpoint)
+                            ang = self.calculate_ang(midpoint)
                             break
                 else:
                     ang = 0
