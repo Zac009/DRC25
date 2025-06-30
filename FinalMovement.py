@@ -191,9 +191,9 @@ class Vision:
                     var /= 100
                     var = int(var)
                     print(f"This is the variable: {var}")
-                    for i in range(4):
+                    for i in range(6):
                         print(var)
-                        self.steer(1750)
+                        self.steer(1850)
                         self.drive(DRIVE_CORNER)
                         time.sleep(0.5)
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
