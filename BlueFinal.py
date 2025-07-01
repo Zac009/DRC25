@@ -19,9 +19,9 @@ DRIVE_CORNER = 1670
 DRIVE_BACKWARD = 1400
 
 class Vision:
-    def __init__(self, lock):
+    def __init__(self):
         self.frame_count = 0
-        self.center_points = []
+        #self.center_points = []
         self.threshold1 = 85
         self.threshold2 = 85
         self.r_width = 500
@@ -32,7 +32,6 @@ class Vision:
         self.running = False
         self.mask1 = None
         self.mask2 = None 
-        self.lock = lock
         self.brake = False
         self.state = None
     
@@ -122,9 +121,9 @@ class Vision:
                 print("Blue Coords found")
                 #midpoint_x = int(blue_mean[0]) - (self.width // 4)
                 midpoint_x = int(blue_mean[0]) - 50
-                midpoint_y = 180
+                midpoint_y = left_pt[1]
                 midpoint = (midpoint_x, midpoint_y)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
             else:
@@ -151,9 +150,9 @@ class Vision:
                             print("boom\n")
                             #midpoint_x = int(blue_mean[0]) - (self.width // 4)
                             midpoint_x = int(blue_mean[0]) - 50
-                            midpoint_y = 180
+                            midpoint_y = left_pt[1]
                             midpoint = (midpoint_x, midpoint_y)
-                            self.center_points.append(midpoint)
+                            #self.center_points.append(midpoint)
                             ang = self.calculate_ang(midpoint)
                             if ang >= 1650 or ang <= 1450:
                                 self.drive(DRIVE_CORNER)
@@ -195,7 +194,7 @@ class Vision:
                 midpoint_x = int((max_pair[0][0] + max_pair[1][0]) / 2)
                 midpoint_y = int((max_pair[0][1] + max_pair[1][1]) / 2)
                 midpoint = (midpoint_x, midpoint_y)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 
                 # Visualize
                 cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
@@ -262,6 +261,7 @@ class Vision:
                 print(ang)
                 try:
                     if ang == 0:
+                        self.drive(DRIVE_STOP)
                         self.running = False
                     else:
                         if abs(self.prev_pulse - ang) > 30:
@@ -305,5 +305,5 @@ class Vision:
             cv2.destroyAllWindows()
 
 
-Ben = Vision("BLEH")
+Ben = Vision()
 Ben.main()
