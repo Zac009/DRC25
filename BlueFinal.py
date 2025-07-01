@@ -257,7 +257,6 @@ class Vision:
                 """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)"""
                 self.frame_count += 1
-                #self.out.write(self.combined_mask)
                 print(ang)
                 try:
                     if ang == 0:
