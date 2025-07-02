@@ -128,6 +128,7 @@ class Vision:
             blue_coords = cv2.findNonZero(blue_hits)
             green_coords = cv2.findNonZero(green_hits)
             #one, self.two = self.detect_box(mix_mask)
+            yellow_coords = None
             if green_coords is not None:
                 ang = 0
                 print("End Line Found")
