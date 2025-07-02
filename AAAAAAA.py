@@ -143,8 +143,11 @@ class Vision:
                     for i in range(10):
                         self.steer(1050)
                         self.drive(DRIVE_CORNER)
+                        #self.drive(DRIVE_STOP)
                         time.sleep(.1)
                         ret, self.frame = self.cap.read()
+                        mask_blue = self.blue_det()
+                        mask_yellow = self.yellow_det()
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
                         mix_mask = blue_hits
