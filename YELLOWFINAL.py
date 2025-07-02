@@ -14,7 +14,7 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1680
+DRIVE_FORWARD = 1690
 DRIVE_CORNER = 1660
 DRIVE_BACKWARD = 1400
 
@@ -266,7 +266,7 @@ class Vision:
                                 print("Corner")
                                 self.drive(DRIVE_CORNER)
                                 self.state = "CORNER"
-                            #time.sleep(0.1)
+                            time.sleep(0.1)
                             self.drive(DRIVE_STOP)
                         else:
                             if self.state == "FORWARRRD":
@@ -275,7 +275,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            #time.sleep(0.1)
+                            time.sleep(0.1)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
