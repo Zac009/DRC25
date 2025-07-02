@@ -240,7 +240,7 @@ class Vision:
 
                 # Store for later use
 
-                blue_mask = self.blue_det()
+                blue_mask = self.yellow_det()
 
                 # Optional: just to visualize
                 #self.combined_mask = np.zeros_like(self.frame)
