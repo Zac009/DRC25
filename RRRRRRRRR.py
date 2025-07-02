@@ -34,10 +34,11 @@ class Vision:
         self.mask2 = None 
         self.brake = False
         self.state = None
+        self.detected = "Blue"
     
     def blue_det(self):
-        lower_blue = np.array([23,50,100])
-        upper_blue = np.array([50,255,255])
+        lower_blue = np.array([100,50,120])
+        upper_blue = np.array([150,255,255])
         blue_mask = cv2.inRange(self.frame_HSV, lower_blue, upper_blue)
         return blue_mask
     
@@ -46,6 +47,12 @@ class Vision:
         upper_green = np.array([85, 255, 255])
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
         return green_mask
+    
+    def yellow_det(self):
+        lower_yellow = np.array([23,50,100])
+        upper_yellow = np.array([50,255,255])
+        yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
+        return yellow_mask
     
     def steer(self,pulse):
         self.pi.set_servo_pulsewidth(STEER_PIN, pulse)
@@ -93,7 +100,7 @@ class Vision:
         return (dx_rot, dy_rot)
     
     #Num steps is for individual photos not videos
-    def adaptive_centerline(self, mask_blue, num_steps=1, step_size=10):
+    def adaptive_centerline(self, mask_blue, mask_yellow, num_steps=1, step_size=10):
         w, h = mask_blue.shape
         position = (w // 2, h // 2)
         direction = self.get_initial_heading()
@@ -107,49 +114,59 @@ class Vision:
             #cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
             # Mask and get pixel hits
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+            yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
             green_mask = self.green_det()
             green_hits = cv2.bitwise_and(green_mask, self.scan_mask)
             mix_mask = blue_hits
             blue_coords = cv2.findNonZero(blue_hits)
             green_coords = cv2.findNonZero(green_hits)
+            yellow_coords = cv2.findNonZero(yellow_hits)
             #one, self.two = self.detect_box(mix_mask)
             if green_coords is not None:
                 ang = 0
                 print("End Line Found")
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
-                print("Yellow Coords found")
+                print("Blue Coords Found")
                 #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                midpoint_x = int(blue_mean[0]) + 200
+                midpoint_x = int(blue_mean[0]) - 100
                 midpoint_y = left_pt[1]
                 midpoint = (midpoint_x, midpoint_y)
                 #self.center_points.append(midpoint)
                 #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
+                self.detected = "Blue"
+            elif yellow_coords is not None:
+                yellow_mean = np.mean(yellow_coords, axis=0)[0]
+                print("No blue_coords found!!!")
+                midpoint_x = int(yellow_mean[0]) + 100
+                midpoint_y = left_pt[1]
+                midpoint = (midpoint_x, midpoint_y)
+                ang = self.calculate_ang(midpoint)
+                self.detected = "Yellow"
             else:
                 if self.brake == False:
-                    print("No colors found!!!")
-                    var = 2000 - self.prev_pulse
-                    var /= 100
-                    var = int(var)
-                    print(f"This is the variable: {var}")
-                    self.drive(DRIVE_CORNER)
-                    time.sleep(0.6)
-                    for i in range(10):
+                    print("No colors found!!!")               
+                    for i in range(2):
                         ret, self.frame = self.cap.read()
-                        self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-                        self.steer(1900)
+                        if self.detected == "Yellow":
+                            self.steer(1950)
+                        elif self.detected == "Blue":
+                            self.steer(1050)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.3)
+                        time.sleep(1)
+                        yellow_mask = self.yellow_det()
+                        yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
+                        yellow_coords = cv2.findNonZero(yellow_hits)
+                        mix_mask = yellow_hits
                         blue_mask = self.blue_det()
                         blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
-                        mix_mask = blue_hits
-                        if blue_coords is not None:
-                            blue_mean = np.mean(blue_coords, axis=0)[0]
-                            print("boom\n")
-                            #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                            midpoint_x = int(blue_mean[0]) - 500
+                        mix_mask = yellow_hits
+                        if yellow_coords is not None:
+                            yellow_mean = np.mean(yellow_coords, axis=0)[0]
+                            print("Yellow Now Detected")
+                            midpoint_x = int(yellow_mean[0]) + 100
                             midpoint_y = left_pt[1]
                             midpoint = (midpoint_x, midpoint_y)
                             #self.center_points.append(midpoint)
@@ -157,6 +174,20 @@ class Vision:
                             if ang >= 1650 or ang <= 1450:
                                 self.drive(DRIVE_CORNER)
                                 time.sleep(1)
+                            self.detected = "Yellow"
+                            break
+                        elif blue_coords is not None:
+                            blue_mean = np.mean(blue_coords, axis=0)[0]
+                            print("Blue Now detected")
+                            midpoint_x = int(blue_mean[0]) - 100
+                            midpoint_y = left_pt[1]
+                            midpoint = (midpoint_x, midpoint_y)
+                            #self.center_points.append(midpoint)
+                            ang = self.calculate_ang(midpoint)
+                            if ang >= 1650 or ang <= 1450:
+                                self.drive(DRIVE_CORNER)
+                                time.sleep(1)
+                            self.detected = "Blue"
                             break
                 else:
                     ang = 0
@@ -241,13 +272,14 @@ class Vision:
                 # Store for later use
 
                 blue_mask = self.blue_det()
+                yellow_mask = self.yellow_det()
 
                 # Optional: just to visualize
                 #self.combined_mask = np.zeros_like(self.frame)
                 #self.combined_mask = cv2.add(yellow_mask, blue_mask)
                 self.scan_mask = np.zeros_like(self.frame_HSV[:, :, 0]) 
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-                path_points, mask3, ang = self.adaptive_centerline(blue_mask)
+                path_points, mask3, ang = self.adaptive_centerline(blue_mask, yellow_mask)
                 """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)"""
                 self.frame_count += 1
