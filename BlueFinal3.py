@@ -36,7 +36,7 @@ class Vision:
         self.state = None
     
     def blue_det(self):
-        lower_blue = np.array([100,50,120])
+        lower_blue = np.array([23,50,100])
         upper_blue = np.array([50,255,255])
         blue_mask = cv2.inRange(self.frame_HSV, lower_blue, upper_blue)
         return blue_mask
