@@ -132,6 +132,7 @@ class Vision:
                 ang = 0
                 print("End Line Found")
             elif yellow_coords is not None and blue_coords is not None:
+                print("BOTH")
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
                 blue_mean = np.mean(blue_coords, axis=0)[0]
                 # Midpoint
