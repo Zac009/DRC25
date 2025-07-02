@@ -37,7 +37,7 @@ class Vision:
         self.state = None
 
     def yellow_det(self):
-        lower_yellow = np.array([25,50,100])
+        lower_yellow = np.array([23,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
