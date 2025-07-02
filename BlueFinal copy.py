@@ -4,13 +4,6 @@ import math
 import time
 import pigpio
 
-
-"""
-Notes:
-    Change the different two blue detection files,
-    Add yellow as recovery loop, move forward 0.5 seconds then detect yellow instead of the different stuff
-"""
-
 # GPIO pin setup
 STEER_PIN = 12
 DRIVE_PIN = 16
@@ -243,16 +236,10 @@ class Vision:
                 if not ret:
                     print("Can't receive frame (stream end?). Exiting ...")
                     break 
-                #self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-                roi_top = self.height // 3        # 1/3 down from top
-                roi_bottom = 2 * self.height // 3 # 2/3 down from top
-                roi = self.frame[roi_top:roi_bottom, :]  # All columns
+                self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV) # All columns
 
                 # Store for later use
-                self.roi = roi
-                self.frame_HSV = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-                self.height = self.frame_HSV.shape[0]
-                self.width = self.frame_HSV.shape[1]
+
                 blue_mask = self.blue_det()
 
                 # Optional: just to visualize

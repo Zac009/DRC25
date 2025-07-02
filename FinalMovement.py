@@ -139,7 +139,7 @@ class Vision:
                 midpoint_y = int((yellow_mean[1] + blue_mean[1]) / 2)
                 midpoint = (midpoint_x, midpoint_y)
                 #self.green_det(midpoint)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 if midpoint_old is not None:
                     dx = midpoint[0] - midpoint_old[0]
                     dy = midpoint[1] - midpoint_old[1]
@@ -171,7 +171,7 @@ class Vision:
                 midpoint_x = int(blue_mean[0]) - 500
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
             elif yellow_coords is not None:
@@ -180,7 +180,7 @@ class Vision:
                 midpoint_x = int(yellow_mean[0]) + 50
                 midpoint_y = 180
                 midpoint = (midpoint_x, midpoint_y)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 #cv2.circle(self.combined_mask, midpoint, 3, (255, 255, 255), -1)
                 ang = self.calculate_ang(midpoint)
                 #180
@@ -210,7 +210,7 @@ class Vision:
                             midpoint_x = int(blue_mean[0]) - 500
                             midpoint_y = 180
                             midpoint = (midpoint_x, midpoint_y)
-                            self.center_points.append(midpoint)
+                            #self.center_points.append(midpoint)
                             ang = self.calculate_ang(midpoint)
                             if ang >= 1650 or ang <= 1450:
                                 self.drive(DRIVE_CORNER)
@@ -219,13 +219,6 @@ class Vision:
                 else:
                     ang = 0
         return self.scan_mask, mix_mask, ang
-
-    def track_frame_motion(self, prev, gray):
-        flow = cv2.calcOpticalFlowFarneback(prev, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
-        dx, dy = np.mean(flow, axis=(0,1))
-        dx*=5
-        dy*=5
-        return dx, dy
     
     def detect_box(self, hit_mask):
         frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
@@ -259,7 +252,7 @@ class Vision:
                 midpoint_x = int((max_pair[0][0] + max_pair[1][0]) / 2)
                 midpoint_y = int((max_pair[0][1] + max_pair[1][1]) / 2)
                 midpoint = (midpoint_x, midpoint_y)
-                self.center_points.append(midpoint)
+                #self.center_points.append(midpoint)
                 
                 # Visualize
                 cv2.circle(final, midpoint, 4, (255, 255, 255), -1)
@@ -310,9 +303,6 @@ class Vision:
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
 
                 # Track frame motion and calculate displacement
-                if self.prev_gray is not None:
-                    dx, dy = self.track_frame_motion(self.prev_gray, gray)
-                    self.center_points = [(cx + dx, cy + dy) for cx, cy in self.center_points]
 
                 path_points, mask3, ang = self.adaptive_centerline(yellow_mask, blue_mask)
                 """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
