@@ -34,6 +34,7 @@ class Vision:
         self.mask2 = None 
         self.brake = False
         self.state = None
+        self.detected = "Blue"
     
     def blue_det(self):
         lower_blue = np.array([100,50,120])
@@ -93,7 +94,7 @@ class Vision:
         return (dx_rot, dy_rot)
     
     #Num steps is for individual photos not videos
-    def adaptive_centerline(self, mask_blue, num_steps=1, step_size=10):
+    def adaptive_centerline(self, mask_blue, mask_yellow, num_steps=1, step_size=10):
         w, h = mask_blue.shape
         position = (w // 2, h // 2)
         direction = self.get_initial_heading()
@@ -107,10 +108,10 @@ class Vision:
             #cv2.line(self.combined_mask, left_pt, right_pt, 255, 1)
             # Mask and get pixel hits
             blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
+            blue_coords = cv2.findNonZero(blue_hits)
+            mix_mask = blue_hits
             green_mask = self.green_det()
             green_hits = cv2.bitwise_and(green_mask, self.scan_mask)
-            mix_mask = blue_hits
-            blue_coords = cv2.findNonZero(blue_hits)
             green_coords = cv2.findNonZero(green_hits)
             #one, self.two = self.detect_box(mix_mask)
             if green_coords is not None:
@@ -133,17 +134,13 @@ class Vision:
                     var /= 100
                     var = int(var)
                     print(f"This is the variable: {var}")
-                    self.drive(DRIVE_CORNER)
-                    time.sleep(0.6)
                     for i in range(10):
                         ret, self.frame = self.cap.read()
-                        self.frame_HSV = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-                        self.steer(1900)
-                        self.drive(DRIVE_CORNER)
-                        time.sleep(0.3)
-                        blue_mask = self.blue_det()
-                        blue_hits = cv2.bitwise_and(blue_mask, self.scan_mask)
+                        blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
+                        mix_mask = blue_hits
+                        yellow_hits = cv2.bitwise_and(mask_yellow, self.scan_mask)
+                        yellow_coords = cv2.findNonZero(yellow_hits)
                         mix_mask = blue_hits
                         if blue_coords is not None:
                             blue_mean = np.mean(blue_coords, axis=0)[0]
@@ -154,10 +151,17 @@ class Vision:
                             midpoint = (midpoint_x, midpoint_y)
                             #self.center_points.append(midpoint)
                             ang = self.calculate_ang(midpoint)
-                            if ang >= 1650 or ang <= 1450:
-                                self.drive(DRIVE_CORNER)
-                                time.sleep(1)
+                        elif yellow_coords is not None:
+                            yellow_mean = np.mean(yellow_coords, axis=0)[0]
+                            print("boom2\n")
+                            #midpoint_x = int(blue_mean[0]) - (self.width // 4)
+                            midpoint_x = int(yellow_mean[0]) - 500
+                            midpoint_y = left_pt[1]
+                            midpoint = (midpoint_x, midpoint_y)
+                            #self.center_points.append(midpoint)
+                            ang = self.calculate_ang(midpoint)
                             break
+                        time.sleep(0.1)
                 else:
                     ang = 0
         return self.scan_mask, mix_mask, ang
@@ -241,13 +245,14 @@ class Vision:
                 # Store for later use
 
                 blue_mask = self.blue_det()
+                yellow_mask = self.yellow_det()
 
                 # Optional: just to visualize
                 #self.combined_mask = np.zeros_like(self.frame)
                 #self.combined_mask = cv2.add(yellow_mask, blue_mask)
                 self.scan_mask = np.zeros_like(self.frame_HSV[:, :, 0]) 
                 gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
-                path_points, mask3, ang = self.adaptive_centerline(blue_mask)
+                path_points, mask3, ang = self.adaptive_centerline(blue_mask, yellow_mask)
                 """pts = np.array(self.center_points, dtype=np.int32).reshape((-1, 1, 2))
                 cv2.polylines(self.combined_mask, [pts], isClosed=False, color=255, thickness=2)"""
                 self.frame_count += 1
