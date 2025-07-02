@@ -138,7 +138,7 @@ class Vision:
                 self.detected = "Blue"
             elif yellow_coords is not None:
                 yellow_mean = np.mean(yellow_coords, axis=0)[0]
-                print("No blue_coords found!!!")
+                print("Yellow Coords Found")
                 midpoint_x = int(yellow_mean[0]) + 100
                 midpoint_y = left_pt[1]
                 midpoint = (midpoint_x, midpoint_y)
