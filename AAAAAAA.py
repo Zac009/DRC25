@@ -141,6 +141,9 @@ class Vision:
                     var = int(var)
                     print(f"This is the variable: {var}")
                     for i in range(10):
+                        self.steer(1050)
+                        self.drive(DRIVE_CORNER)
+                        time.wait(.1)
                         ret, self.frame = self.cap.read()
                         blue_hits = cv2.bitwise_and(mask_blue, self.scan_mask)
                         blue_coords = cv2.findNonZero(blue_hits)
