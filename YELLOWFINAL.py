@@ -36,8 +36,8 @@ class Vision:
         self.state = None
     
     def blue_det(self):
-        lower_blue = np.array([100,50,120])
-        upper_blue = np.array([150,255,255])
+        lower_blue = np.array([23,50,100])
+        upper_blue = np.array([50,255,255])
         blue_mask = cv2.inRange(self.frame_HSV, lower_blue, upper_blue)
         return blue_mask
     
@@ -118,9 +118,9 @@ class Vision:
                 print("End Line Found")
             elif blue_coords is not None:
                 blue_mean = np.mean(blue_coords, axis=0)[0]
-                print("Blue Coords found")
+                print("Yellow Coords found")
                 #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                midpoint_x = int(blue_mean[0]) - 500
+                midpoint_x = int(blue_mean[0]) + 500
                 midpoint_y = left_pt[1]
                 midpoint = (midpoint_x, midpoint_y)
                 #self.center_points.append(midpoint)
