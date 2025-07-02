@@ -149,7 +149,7 @@ class Vision:
                             blue_mean = np.mean(blue_coords, axis=0)[0]
                             print("boom\n")
                             #midpoint_x = int(blue_mean[0]) - (self.width // 4)
-                            midpoint_x = int(blue_mean[0]) - 50
+                            midpoint_x = int(blue_mean[0]) - 500
                             midpoint_y = left_pt[1]
                             midpoint = (midpoint_x, midpoint_y)
                             #self.center_points.append(midpoint)
@@ -266,7 +266,7 @@ class Vision:
                                 print("Corner")
                                 self.drive(DRIVE_CORNER)
                                 self.state = "CORNER"
-                            time.sleep(0.5)
+                            time.sleep(0.3)
                             self.drive(DRIVE_STOP)
                         else:
                             if self.state == "FORWARRRD":
@@ -275,7 +275,7 @@ class Vision:
                                 print("Forward")
                                 self.drive(DRIVE_FORWARD)
                                 self.state = "FORWARD"
-                            time.sleep(0.5)
+                            time.sleep(0.3)
                             self.drive(DRIVE_STOP)
                 except Exception as e:
                     print(f"There was an error: {e}")
