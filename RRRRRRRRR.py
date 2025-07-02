@@ -148,6 +148,7 @@ class Vision:
                 if self.brake == False:
                     print("No colors found!!!")               
                     for i in range(2):
+                        print("GOODY")
                         ret, self.frame = self.cap.read()
                         if self.detected == "Yellow":
                             self.steer(1950)
