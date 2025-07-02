@@ -147,7 +147,7 @@ class Vision:
             else:
                 if self.brake == False:
                     print("No colors found!!!")               
-                    for i in range(10):
+                    for i in range(20):
                         print("GOODY")
                         ret, self.frame = self.cap.read()
                         if self.detected == "Yellow":
@@ -155,7 +155,7 @@ class Vision:
                         elif self.detected == "Blue":
                             self.steer(1050)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(1)
+                        time.sleep(.1)
                         yellow_mask = self.yellow_det()
                         yellow_hits = cv2.bitwise_and(yellow_mask, self.scan_mask)
                         yellow_coords = cv2.findNonZero(yellow_hits)
