@@ -14,8 +14,8 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1670
-DRIVE_CORNER = 1660
+DRIVE_FORWARD = 1660
+DRIVE_CORNER = 1640
 DRIVE_BACKWARD = 1400
 
 DIST_FROM = 150
@@ -117,7 +117,7 @@ class Vision:
                         if abs(offset) < 20:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
-                            time.sleep(0.6)
+                            time.sleep(1)
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
                             self.drive(DRIVE_STOP)
@@ -125,7 +125,7 @@ class Vision:
                         elif offset > 0:
                             self.steer(STEER_RIGHT)
                             self.drive(DRIVE_CORNER)
-                            time.sleep(0.6)
+                            time.sleep(1)
                             self.last_steer = STEER_RIGHT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
@@ -133,7 +133,7 @@ class Vision:
                         else:
                             self.steer(STEER_LEFT)
                             self.drive(DRIVE_CORNER)
-                            time.sleep(0.6)
+                            time.sleep(1)
                             self.last_steer = STEER_LEFT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
@@ -142,7 +142,7 @@ class Vision:
                         print("Blue")
                         self.steer(STEER_LEFT)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.6)
+                        time.sleep(1)
                         self.last_steer = STEER_LEFT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
@@ -151,7 +151,7 @@ class Vision:
                         print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.6)
+                        time.sleep(1)
                         self.last_steer = STEER_RIGHT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
@@ -161,7 +161,7 @@ class Vision:
                         # No lines seen, continue last command
                         self.steer(self.last_steer)
                         self.drive(self.last_drive)
-                        time.sleep(0.6)
+                        time.sleep(1)
                         self.drive(DRIVE_STOP)
                         time.sleep(0.2)
                 except Exception as e:
