@@ -120,53 +120,53 @@ class Vision:
                         if abs(offset) < 20:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
-                            time.sleep(0.4)
+                            #time.sleep(0.4)
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
                             self.drive(DRIVE_STOP)
-                            time.sleep(0.4)
+                            #time.sleep(0.4)
                         elif offset > 0:
                             self.steer(STEER_RIGHT)
                             self.drive(DRIVE_CORNER)
-                            time.sleep(0.3)
+                            #time.sleep(0.3)
                             self.last_steer = STEER_RIGHT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
-                            time.sleep(0.3)
+                            #time.sleep(0.3)
                         else:
                             self.steer(STEER_LEFT)
                             self.drive(DRIVE_CORNER)
-                            time.sleep(0.3)
+                            #time.sleep(0.3)
                             self.last_steer = STEER_LEFT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
-                            time.sleep(0.3)
+                            #time.sleep(0.3)
                     elif blue_x is not None:
                         print("Blue")
                         self.steer(STEER_LEFT)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                         self.last_steer = STEER_LEFT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                     elif yellow_x is not None:
                         print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                         self.last_steer = STEER_RIGHT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                     else:
                         print("None")
                         # No lines seen, continue last command
                         self.steer(self.last_steer)
                         self.drive(self.last_drive)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                         self.drive(DRIVE_STOP)
-                        time.sleep(0.3)
+                        #time.sleep(0.3)
                 except Exception as e:
                     print(f"There was an error: {e}")
                     self.drive(DRIVE_STOP)
