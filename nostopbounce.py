@@ -155,6 +155,7 @@ class Vision:
                             #time.sleep(0.3)
                     elif yellow_x is not None:
                         if yellow_x > self.width * 0.6:
+                            print("AHHHH")
                             self.steer(STEER_LEFT)
                         else:
                             print("Yellow")
