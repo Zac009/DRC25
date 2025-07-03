@@ -146,8 +146,14 @@ class Vision:
                     # No lines seen, continue last command
                     self.steer(self.last_steer)
                     self.drive(self.last_drive)
+        except KeyboardInterrupt:
+            print("Stopped by user (Ctrl+C)")
+            self.drive(DRIVE_STOP)
+            self.steer(STEER_CENTER)
+            self.cap.release()
+            cv2.destroyAllWindows()
         except Exception as e:
-            print(e)
+                print(e)
 
 Ben = Vision()
 Ben.main()
