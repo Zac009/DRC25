@@ -84,11 +84,14 @@ class Vision:
                 blue_mask = self.blue_det()
                 yellow_mask = self.yellow_det()
 
-                #Bounce Logic
+                # Just before contour detection:
+                roi_height = self.height // 3  # Use the bottom third
+                blue_mask_roi = blue_mask[-roi_height:, :]
+                yellow_mask_roi = yellow_mask[-roi_height:, :]
 
                 # Find contours for blue and yellow masks
-                contours_blue, _ = cv2.findContours(blue_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                contours_yellow, _ = cv2.findContours(yellow_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours_blue, _ = cv2.findContours(blue_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours_yellow, _ = cv2.findContours(yellow_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 blue_x = None
                 yellow_x = None
@@ -114,7 +117,7 @@ class Vision:
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2
                         offset = center - frame_center
-                        if abs(offset) < 24:
+                        if abs(offset) < 20:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
                             time.sleep(0.3)
