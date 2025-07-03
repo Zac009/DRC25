@@ -119,33 +119,45 @@ class Vision:
                             self.drive(DRIVE_FORWARD)
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
+                            self.drive(DRIVE_STOP)
+                            time.wait(0.5)
                         elif offset > 0:
                             self.steer(STEER_RIGHT)
                             self.drive(DRIVE_CORNER)
                             self.last_steer = STEER_RIGHT
                             self.last_drive = DRIVE_CORNER
+                            self.drive(DRIVE_STOP)
+                            time.wait(0.5)
                         else:
                             self.steer(STEER_LEFT)
                             self.drive(DRIVE_CORNER)
                             self.last_steer = STEER_LEFT
                             self.last_drive = DRIVE_CORNER
+                            self.drive(DRIVE_STOP)
+                            time.wait(0.5)
                     elif blue_x is not None:
                         print("Blue")
                         self.steer(STEER_LEFT)
                         self.drive(DRIVE_CORNER)
                         self.last_steer = STEER_LEFT
                         self.last_drive = DRIVE_CORNER
+                        self.drive(DRIVE_STOP)
+                        time.wait(0.5)
                     elif yellow_x is not None:
                         print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
                         self.last_steer = STEER_RIGHT
                         self.last_drive = DRIVE_CORNER
+                        self.drive(DRIVE_STOP)
+                        time.wait(0.5)
                     else:
                         print("None")
                         # No lines seen, continue last command
                         self.steer(self.last_steer)
                         self.drive(self.last_drive)
+                        self.drive(DRIVE_STOP)
+                        time.wait(0.5)
                 except Exception as e:
                     print(f"There was an error: {e}")
                     self.drive(DRIVE_STOP)
