@@ -164,7 +164,7 @@ class Vision:
                         # No lines seen, continue last command
                         self.steer(self.last_steer)
                         self.drive(self.last_drive)
-                        time.sleep(0.3)
+                        time.sleep(0.4)
                         self.drive(DRIVE_STOP)
                         time.sleep(0.3)
                 except Exception as e:
