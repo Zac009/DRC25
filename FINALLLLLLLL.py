@@ -151,17 +151,14 @@ class Vision:
                         #self.drive(DRIVE_STOP)
                         #time.sleep(0.3)
                     elif yellow_x is not None:
-                        if yellow_x > self.width * 0.6:
-                            self.steer(STEER_LEFT)
-                        else:
-                            print("Yellow")
-                            self.steer(STEER_RIGHT)
-                            self.drive(DRIVE_CORNER)
-                            #time.sleep(0.3)
-                            self.last_steer = STEER_RIGHT
-                            self.last_drive = DRIVE_CORNER
-                            #self.drive(DRIVE_STOP)
-                            #time.sleep(0.3)
+                        print("Yellow")
+                        self.steer(STEER_RIGHT)
+                        self.drive(DRIVE_CORNER)
+                        #time.sleep(0.3)
+                        self.last_steer = STEER_RIGHT
+                        self.last_drive = DRIVE_CORNER
+                        #self.drive(DRIVE_STOP)
+                        #time.sleep(0.3)
                     else:
                         print("None")
                         # No lines seen, continue last command
