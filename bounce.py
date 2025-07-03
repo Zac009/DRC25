@@ -148,3 +148,6 @@ class Vision:
                     self.drive(self.last_drive)
         except Exception as e:
             print(e)
+
+Ben = Vision()
+Ben.main()
