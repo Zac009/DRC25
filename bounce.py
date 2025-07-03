@@ -166,7 +166,7 @@ class Vision:
                         self.drive(self.last_drive)
                         time.sleep(0.3)
                         self.drive(DRIVE_STOP)
-                        time.sleep(1)
+                        time.sleep(0.3)
                 except Exception as e:
                     print(f"There was an error: {e}")
                     self.drive(DRIVE_STOP)
