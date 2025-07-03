@@ -117,6 +117,7 @@ class Vision:
                         if abs(offset) < 20:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
+                            time.sleep(0.2)
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
                             self.drive(DRIVE_STOP)
@@ -124,6 +125,7 @@ class Vision:
                         elif offset > 0:
                             self.steer(STEER_RIGHT)
                             self.drive(DRIVE_CORNER)
+                            time.sleep(0.5)
                             self.last_steer = STEER_RIGHT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
@@ -131,6 +133,7 @@ class Vision:
                         else:
                             self.steer(STEER_LEFT)
                             self.drive(DRIVE_CORNER)
+                            time.sleep(0.5)
                             self.last_steer = STEER_LEFT
                             self.last_drive = DRIVE_CORNER
                             self.drive(DRIVE_STOP)
@@ -139,6 +142,7 @@ class Vision:
                         print("Blue")
                         self.steer(STEER_LEFT)
                         self.drive(DRIVE_CORNER)
+                        time.sleep(0.5)
                         self.last_steer = STEER_LEFT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
@@ -147,6 +151,7 @@ class Vision:
                         print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
+                        time.sleep(0.5)
                         self.last_steer = STEER_RIGHT
                         self.last_drive = DRIVE_CORNER
                         self.drive(DRIVE_STOP)
@@ -156,6 +161,7 @@ class Vision:
                         # No lines seen, continue last command
                         self.steer(self.last_steer)
                         self.drive(self.last_drive)
+                        time.sleep(0.5)
                         self.drive(DRIVE_STOP)
                         time.sleep(0.5)
                 except Exception as e:
