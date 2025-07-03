@@ -120,7 +120,7 @@ class Vision:
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
                             self.drive(DRIVE_STOP)
-                            time.wait(0.5)
+                            time.sleep(0.5)
                         elif offset > 0:
                             self.steer(STEER_RIGHT)
                             self.drive(DRIVE_CORNER)
