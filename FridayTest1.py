@@ -27,6 +27,8 @@ class Vision:
         self.r_width = 500
         self.r_height = 300
         self.direction = "Blue"
+        self.left_region = (0, self.width // 2)
+        self.right_region = (self.width // 2, self.width)
 
     def blue_det(self):
         lower_blue = np.array([100,50,120])
@@ -46,6 +48,15 @@ class Vision:
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
         return green_mask
     
+    def is_contour_on_side(self, contour, side="left"):
+        x, y, w, h = cv2.boundingRect(contour)
+        cx = x + w // 2
+        if side == "left":
+            return cx < self.width // 2
+        elif side == "right":
+            return cx >= self.width // 2
+        return False
+    
     def steer(self,pulse):
         self.pi.set_servo_pulsewidth(STEER_PIN, pulse)
 
@@ -53,23 +64,6 @@ class Vision:
         self.pi.set_servo_pulsewidth(DRIVE_PIN, pulse)
 
     def main(self):
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
-        self.running = True
-        self.pi = pigpio.pi()
-        ret, self.frame = self.cap.read()
-        if not ret:
-            print("Can't receive initial frame. Exiting ...")
-            return
-        self.height, self.width = self.frame.shape[:2]
-        if not self.pi.connected:
-            print("Pi is not running")
-            exit()
-        if not self.cap.isOpened():
-            print("Cannot open camera")
-            exit()
-        self.steer(STEER_CENTER)
         self.last_steer = STEER_CENTER
         self.last_drive = DRIVE_FORWARD
         try:
@@ -83,36 +77,61 @@ class Vision:
                 # Store for later use
                 blue_mask = self.blue_det()
                 yellow_mask = self.yellow_det()
+                green_mask = self.green_det()
 
                 # Just before contour detection:
                 roi_height = self.height // 4  # Use the bottom third
                 blue_mask_roi = blue_mask[-roi_height:, :]
                 yellow_mask_roi = yellow_mask[-roi_height:, :]
+                green_mask_roi =  green_mask[-roi_height:, :]
 
                 # Find contours for blue and yellow masks
                 contours_blue, _ = cv2.findContours(blue_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 contours_yellow, _ = cv2.findContours(yellow_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours_green, _ = cv2.findContours(green_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 blue_x = None
                 yellow_x = None
+                green_x = None
+                green = None
 
                 # Find the largest blue contour (right line)
+                # Check for side-consistent blue and yellow
+                blue_valid = False
+                yellow_valid = False
+
                 if contours_blue:
                     largest_blue = max(contours_blue, key=cv2.contourArea)
                     if cv2.contourArea(largest_blue) > MIN_CONTOUR_AREA:
-                        M_blue = cv2.moments(largest_blue)
-                        if M_blue["m00"] != 0:
-                            blue_x = int(M_blue["m10"] / M_blue["m00"])
+                        if self.is_contour_on_side(largest_blue, "right"):
+                            M_blue = cv2.moments(largest_blue)
+                            if M_blue["m00"] != 0:
+                                blue_x = int(M_blue["m10"] / M_blue["m00"])
+                                blue_valid = True
 
-                # Find the largest yellow contour (left line)
                 if contours_yellow:
                     largest_yellow = max(contours_yellow, key=cv2.contourArea)
-                    M_yellow = cv2.moments(largest_yellow)
-                    if M_yellow["m00"] != 0:
-                        yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
+                    if cv2.contourArea(largest_yellow) > MIN_CONTOUR_AREA:
+                        if self.is_contour_on_side(largest_yellow, "left"):
+                            M_yellow = cv2.moments(largest_yellow)
+                            if M_yellow["m00"] != 0:
+                                yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
+                                yellow_valid = True
+
+                if contours_green:
+                    largest_green = max(contours_green, key=cv2.contourArea)
+                    M_green = cv2.moments(largest_green)
+                    if M_green["m00"] != 0:
+                        green_x = int(M_green["m10"] / M_green["m00"])
+
+                #green_x = None
                 try:
                     # Decide steering
-                    if blue_x is not None and yellow_x is not None:
+                    if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
+                        self.drive(DRIVE_STOP)
+                        print("Green Detected, stopping")
+                        break
+                    elif blue_valid and yellow_valid:
                         print("Straight")
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2
@@ -141,7 +160,7 @@ class Vision:
                             self.last_drive = DRIVE_CORNER
                             #self.drive(DRIVE_STOP)
                             #time.sleep(0.3)
-                    elif blue_x is not None:
+                    elif blue_valid:
                         print("Blue")
                         self.steer(STEER_LEFT)
                         self.drive(DRIVE_CORNER)
@@ -150,7 +169,7 @@ class Vision:
                         self.last_drive = DRIVE_CORNER
                         #self.drive(DRIVE_STOP)
                         #time.sleep(0.3)
-                    elif yellow_x is not None:
+                    elif yellow_valid:
                         print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
@@ -180,5 +199,31 @@ class Vision:
         except Exception as e:
                 print(e)
 
+    def start_up(self):
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+        self.running = True
+        self.pi = pigpio.pi()
+        ret, self.frame = self.cap.read()
+        if not ret:
+            print("Can't receive initial frame. Exiting ...")
+            return
+        self.height, self.width = self.frame.shape[:2]
+        if not self.pi.connected:
+            print("Pi is not running")
+            exit()
+        if not self.cap.isOpened():
+            print("Cannot open camera")
+            exit()
+        self.steer(STEER_CENTER)
+        self.steer(STEER_CENTER)
+
 Ben = Vision()
-Ben.main()
+Ben.start_up()
+while True:
+    if input() == 'x':
+        Ben.main()
+        break
+
+#Call main only after input of x, run camera first then run movement afterwards
