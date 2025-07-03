@@ -27,8 +27,8 @@ class Vision:
         self.r_width = 500
         self.r_height = 300
         self.direction = "Blue"
-        self.left_region = (0, self.width // 2)
-        self.right_region = (self.width // 2, self.width)
+        self.left_region = (0, self.r_width // 2)
+        self.right_region = (self.r_width // 2, self.r_width)
 
     def blue_det(self):
         lower_blue = np.array([100,50,120])
