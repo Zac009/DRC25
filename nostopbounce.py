@@ -145,6 +145,7 @@ class Vision:
                         if blue_x < self.width * 0.2:
                             self.steer(STEER_CENTER)
                             print("BOOM")
+                            time.sleep(1)
                         else:
                             print("Blue")
                             self.steer(STEER_LEFT)
@@ -158,6 +159,7 @@ class Vision:
                         if yellow_x > self.width * 0.8:
                             self.steer(STEER_CENTER)
                             print("AHHHH")
+                            time.sleep(1)
                         else:
                             print("Yellow")
                             self.steer(STEER_RIGHT)
