@@ -117,7 +117,7 @@ class Vision:
                         if abs(offset) < 20:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
-                            time.sleep(0.7)
+                            time.sleep(0.5)
                             self.last_steer = STEER_CENTER
                             self.last_drive = DRIVE_FORWARD
                             self.drive(DRIVE_STOP)
