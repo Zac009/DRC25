@@ -85,7 +85,7 @@ class Vision:
                 yellow_mask = self.yellow_det()
 
                 # Just before contour detection:
-                roi_height = self.height // 8  # Use the bottom third
+                roi_height = self.height // 4  # Use the bottom third
                 blue_mask_roi = blue_mask[-roi_height:, :]
                 yellow_mask_roi = yellow_mask[-roi_height:, :]
 
