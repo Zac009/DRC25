@@ -14,7 +14,7 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1680
+DRIVE_FORWARD = 1670
 DRIVE_CORNER = 1670
 DRIVE_BACKWARD = 1400
 
@@ -107,45 +107,49 @@ class Vision:
                     M_yellow = cv2.moments(largest_yellow)
                     if M_yellow["m00"] != 0:
                         yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
-
-                # Decide steering
-                if blue_x is not None and yellow_x is not None:
-                    print("Straight")
-                    center = (blue_x + yellow_x) // 2
-                    frame_center = self.width // 2
-                    offset = center - frame_center
-                    if abs(offset) < 20:
-                        self.steer(STEER_CENTER)
-                        self.drive(DRIVE_FORWARD)
-                        self.last_steer = STEER_CENTER
-                        self.last_drive = DRIVE_FORWARD
-                    elif offset > 0:
+                try:
+                    # Decide steering
+                    if blue_x is not None and yellow_x is not None:
+                        print("Straight")
+                        center = (blue_x + yellow_x) // 2
+                        frame_center = self.width // 2
+                        offset = center - frame_center
+                        if abs(offset) < 20:
+                            self.steer(STEER_CENTER)
+                            self.drive(DRIVE_FORWARD)
+                            self.last_steer = STEER_CENTER
+                            self.last_drive = DRIVE_FORWARD
+                        elif offset > 0:
+                            self.steer(STEER_RIGHT)
+                            self.drive(DRIVE_CORNER)
+                            self.last_steer = STEER_RIGHT
+                            self.last_drive = DRIVE_CORNER
+                        else:
+                            self.steer(STEER_LEFT)
+                            self.drive(DRIVE_CORNER)
+                            self.last_steer = STEER_LEFT
+                            self.last_drive = DRIVE_CORNER
+                    elif blue_x is not None:
+                        print("Blue")
+                        self.steer(STEER_LEFT)
+                        self.drive(DRIVE_CORNER)
+                        self.last_steer = STEER_LEFT
+                        self.last_drive = DRIVE_CORNER
+                    elif yellow_x is not None:
+                        print("Yellow")
                         self.steer(STEER_RIGHT)
                         self.drive(DRIVE_CORNER)
                         self.last_steer = STEER_RIGHT
                         self.last_drive = DRIVE_CORNER
                     else:
-                        self.steer(STEER_LEFT)
-                        self.drive(DRIVE_CORNER)
-                        self.last_steer = STEER_LEFT
-                        self.last_drive = DRIVE_CORNER
-                elif blue_x is not None:
-                    print("Blue")
-                    self.steer(STEER_LEFT)
-                    self.drive(DRIVE_CORNER)
-                    self.last_steer = STEER_LEFT
-                    self.last_drive = DRIVE_CORNER
-                elif yellow_x is not None:
-                    print("Yellow")
-                    self.steer(STEER_RIGHT)
-                    self.drive(DRIVE_CORNER)
-                    self.last_steer = STEER_RIGHT
-                    self.last_drive = DRIVE_CORNER
-                else:
-                    print("None")
-                    # No lines seen, continue last command
-                    self.steer(self.last_steer)
-                    self.drive(self.last_drive)
+                        print("None")
+                        # No lines seen, continue last command
+                        self.steer(self.last_steer)
+                        self.drive(self.last_drive)
+                except Exception as e:
+                    print(f"There was an error: {e}")
+                    self.drive(DRIVE_STOP)
+                    break
         except KeyboardInterrupt:
             print("Stopped by user (Ctrl+C)")
             self.drive(DRIVE_STOP)
