@@ -114,7 +114,7 @@ class Vision:
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2
                         offset = center - frame_center
-                        if abs(offset) < 30:
+                        if abs(offset) < 24:
                             self.steer(STEER_CENTER)
                             self.drive(DRIVE_FORWARD)
                             time.sleep(0.3)
