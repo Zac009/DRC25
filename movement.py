@@ -43,7 +43,7 @@ try:
     # Move forward
     steer(STEER_CENTER)
     drive(DRIVE_FORWARD)
-    time.sleep(1)
+    time.sleep(0.5)
     print("FOrward")
     # Turn left while moving
     steer(STEER_LEFT)
