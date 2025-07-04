@@ -29,13 +29,13 @@ class Vision:
         self.direction = "Blue"
 
     def blue_det(self):
-        lower_blue = np.array([50,50,120])
+        lower_blue = np.array([100,50,120])
         upper_blue = np.array([150,255,255])
         blue_mask = cv2.inRange(self.frame_HSV, lower_blue, upper_blue)
         return blue_mask
     
     def yellow_det(self):
-        lower_yellow = np.array([18,50,100])
+        lower_yellow = np.array([15,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
