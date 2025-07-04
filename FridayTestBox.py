@@ -143,6 +143,7 @@ class Vision:
                         print("Green Detected, stopping")
                         break
                     elif contours_purple:
+                        print("Purple")
                         largest_purple = max(contours_purple, key=cv2.contourArea)
                         M_purple = cv2.moments(largest_purple)
                         if cv2.contourArea(largest_purple) > 400:
@@ -164,7 +165,7 @@ class Vision:
                                     self.last_drive = DRIVE_CORNER
                                 continue  # Skip the rest of the loop to prioritize avoidance|
                     elif blue_x is not None and yellow_x is not None:
-                        print("Box")
+                        print("LOL")
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2
                         offset = center - frame_center
