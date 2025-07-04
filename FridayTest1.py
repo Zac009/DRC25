@@ -66,6 +66,8 @@ class Vision:
     def main(self):
         self.last_steer = STEER_CENTER
         self.last_drive = DRIVE_FORWARD
+        self.drive(DRIVE_FORWARD)
+        time.sleep(0.5)
         try:
             while True:
                 ret, self.frame = self.cap.read()
