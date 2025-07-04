@@ -105,7 +105,7 @@ class Vision:
 
                 # Lookahead ROI (top half)
                 lookahead_roi_height = self.height // 2
-                purple_mask_lookahead = purple_mask[:lookahead_roi_height, :]
+                purple_mask_lookahead = purple_mask[-roi_height:, :]
 
                 # Find contours in lookahead ROI
                 contours_purple, _ = cv2.findContours(purple_mask_lookahead, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
