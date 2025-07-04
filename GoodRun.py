@@ -98,6 +98,7 @@ class Vision:
 
                 blue_x = None
                 yellow_x = None
+                green_x = None
                 green = None
 
                 # Find the largest blue contour (right line)
@@ -120,6 +121,7 @@ class Vision:
                     M_yellow = cv2.moments(largest_yellow)
                     if M_yellow["m00"] != 0:
                         green_x = int(M_yellow["m10"] / M_yellow["m00"])
+                
                 try:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
