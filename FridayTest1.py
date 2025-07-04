@@ -125,7 +125,7 @@ class Vision:
                         green_x = int(M_green["m10"] / M_green["m00"])
                         print("green")
 
-                #green_x = None
+                green_x = None
                 try:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
