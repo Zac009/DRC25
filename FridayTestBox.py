@@ -164,7 +164,7 @@ class Vision:
                                     self.last_drive = DRIVE_CORNER
                                 continue  # Skip the rest of the loop to prioritize avoidance|
                     elif blue_x is not None and yellow_x is not None:
-                        print("Straight")
+                        print("Box")
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2
                         offset = center - frame_center
