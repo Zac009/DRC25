@@ -14,7 +14,7 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1670
+DRIVE_FORWARD = 1680
 DRIVE_CORNER = 1650
 DRIVE_BACKWARD = 1400
 
@@ -37,7 +37,7 @@ class Vision:
         return blue_mask
     
     def yellow_det(self):
-        lower_yellow = np.array([23,50,100])
+        lower_yellow = np.array([21,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
