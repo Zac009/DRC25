@@ -123,6 +123,7 @@ class Vision:
                     M_green = cv2.moments(largest_green)
                     if M_green["m00"] != 0:
                         green_x = int(M_green["m10"] / M_green["m00"])
+                        print("green")
 
                 #green_x = None
                 try:
