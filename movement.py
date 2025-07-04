@@ -48,6 +48,8 @@ try:
     # Turn left while moving
     steer(STEER_LEFT)
     time.sleep(0.5)
+    steer(STEER_RIGHT)
+    time.sleep(0.5)
 
     # Stop
     drive(DRIVE_STOP)
