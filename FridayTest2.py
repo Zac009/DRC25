@@ -128,6 +128,7 @@ class Vision:
                     largest_yellow = max(contours_yellow, key=cv2.contourArea)
                     M_yellow = cv2.moments(largest_yellow)
                     if M_yellow["m00"] != 0:
+                        print("VALID")
                         yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
 
                 if contours_green:
