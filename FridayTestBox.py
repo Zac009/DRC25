@@ -152,14 +152,14 @@ class Vision:
                                 if purple_x < self.width // 2:
                                     # Purple box on left, steer right
                                     print("Purple box ahead on left, steering RIGHT")
-                                    self.steer(STEER_RIGHT)
+                                    self.steer(1750)
                                     self.drive(DRIVE_CORNER)
                                     self.last_steer = STEER_RIGHT
                                     self.last_drive = DRIVE_CORNER
                                 else:
                                     # Purple box on right, steer left
                                     print("Purple box ahead on right, steering LEFT")
-                                    self.steer(STEER_LEFT)
+                                    self.steer(1250)
                                     self.drive(DRIVE_CORNER)
                                     self.last_steer = STEER_LEFT
                                     self.last_drive = DRIVE_CORNER
