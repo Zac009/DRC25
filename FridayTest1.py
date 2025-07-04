@@ -14,8 +14,8 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1700
-DRIVE_CORNER = 1670
+DRIVE_FORWARD = 1680
+DRIVE_CORNER = 1650
 DRIVE_BACKWARD = 1400
 
 DIST_FROM = 150
@@ -66,6 +66,8 @@ class Vision:
     def main(self):
         self.last_steer = STEER_CENTER
         self.last_drive = DRIVE_FORWARD
+        self.drive(DRIVE_FORWARD)
+        time.sleep(1)
         try:
             while True:
                 ret, self.frame = self.cap.read()
@@ -219,7 +221,6 @@ class Vision:
         if not self.cap.isOpened():
             print("Cannot open camera")
             exit()
-        self.steer(STEER_CENTER)
         self.steer(STEER_CENTER)
 
 Ben = Vision()

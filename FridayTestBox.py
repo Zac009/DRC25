@@ -146,24 +146,32 @@ class Vision:
                         print("Purple")
                         largest_purple = max(contours_purple, key=cv2.contourArea)
                         M_purple = cv2.moments(largest_purple)
-                        if cv2.contourArea(largest_purple) > 400:
-                            if M_purple["m00"] != 0:
-                                purple_x = int(M_purple["m10"] / M_purple["m00"])
-                                if purple_x < self.width // 2:
-                                    # Purple box on left, steer right
-                                    print("Purple box ahead on left, steering RIGHT")
-                                    self.steer(1900)
-                                    self.drive(DRIVE_CORNER)
-                                    self.last_steer = STEER_RIGHT
-                                    self.last_drive = DRIVE_CORNER
+                        if cv2.contourArea(largest_purple) > 400 and M_purple["m00"] != 0:
+                            purple_x = int(M_purple["m10"] / M_purple["m00"])
+                            # Default: steer away from purple
+                            steer_direction = None
+                            if purple_x < self.width // 2:
+                                # Purple box on left, check if blue is also on left
+                                if blue_x is not None and blue_x < self.width // 2:
+                                    print("Blue line also on left, can't turn left, turning RIGHT")
+                                    steer_direction = STEER_RIGHT
                                 else:
-                                    # Purple box on right, steer left
+                                    print("Purple box ahead on left, steering RIGHT")
+                                    steer_direction = STEER_RIGHT
+                            else:
+                                # Purple box on right, check if yellow is also on right
+                                if yellow_x is not None and yellow_x > self.width // 2:
+                                    print("Yellow line also on right, can't turn right, turning LEFT")
+                                    steer_direction = STEER_LEFT
+                                else:
                                     print("Purple box ahead on right, steering LEFT")
-                                    self.steer(1100)
-                                    self.drive(DRIVE_CORNER)
-                                    self.last_steer = STEER_LEFT
-                                    self.last_drive = DRIVE_CORNER
-                                continue  # Skip the rest of the loop to prioritize avoidance|
+                                    steer_direction = STEER_LEFT
+                            if steer_direction is not None:
+                                self.steer(steer_direction)
+                                self.drive(DRIVE_CORNER)
+                                self.last_steer = steer_direction
+                                self.last_drive = DRIVE_CORNER
+                                continue  # Skip rest of loop to prioritize avoidance
                     elif blue_x is not None and yellow_x is not None:
                         print("LOL")
                         center = (blue_x + yellow_x) // 2
