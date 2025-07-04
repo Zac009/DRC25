@@ -44,11 +44,13 @@ try:
     steer(STEER_CENTER)
     drive(DRIVE_FORWARD)
     time.sleep(1)
-
+    print("FOrward")
     # Turn left while moving
     steer(STEER_LEFT)
+    print("Left")
     time.sleep(0.5)
     steer(STEER_RIGHT)
+    print("Right")
     time.sleep(0.5)
 
     # Stop
