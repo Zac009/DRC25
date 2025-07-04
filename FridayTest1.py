@@ -130,7 +130,7 @@ class Vision:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
                         self.drive(DRIVE_FORWARD)
-                        time.sleep(0.5)
+                        time.sleep(1)
                         self.drive(DRIVE_STOP)
                         print("Green Detected, stopping")
                         break
@@ -219,6 +219,7 @@ class Vision:
         if not self.cap.isOpened():
             print("Cannot open camera")
             exit()
+        self.steer(STEER_CENTER)
         self.steer(STEER_CENTER)
 
 Ben = Vision()
