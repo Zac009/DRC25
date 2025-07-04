@@ -166,6 +166,7 @@ class Vision:
                     elif blue_valid:
                         print("Blue")
                         self.steer(STEER_LEFT)
+                        print("ITS GOINF LEDT")
                         self.drive(DRIVE_CORNER)
                         #time.sleep(0.3)
                         self.last_steer = STEER_LEFT
