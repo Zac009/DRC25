@@ -43,7 +43,7 @@ class Vision:
         return yellow_mask
     
     def green_det(self):
-        lower_green = np.array([35, 100, 100])
+        lower_green = np.array([35, 58, 100])
         upper_green = np.array([85, 255, 255])
         green_mask = cv2.inRange(self.frame_HSV, lower_green, upper_green)
         return green_mask
@@ -125,7 +125,7 @@ class Vision:
                         green_x = int(M_green["m10"] / M_green["m00"])
                         print("green")
 
-                green_x = None
+                #green_x = None
                 try:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
