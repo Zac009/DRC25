@@ -135,7 +135,7 @@ class Vision:
                     M_green = cv2.moments(largest_green)
                     if M_green["m00"] != 0:
                         green_x = int(M_green["m10"] / M_green["m00"])
-                #green = None
+                green_x = None
                 try:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
