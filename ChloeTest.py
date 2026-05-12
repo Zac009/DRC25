@@ -14,7 +14,7 @@ STEER_CENTER = 1500
 STEER_RIGHT = 2000
 
 DRIVE_STOP = 1500
-DRIVE_FORWARD = 1680
+DRIVE_FORWARD = 1650
 DRIVE_CORNER = 1650
 DRIVE_BACKWARD = 1400
 
@@ -29,13 +29,13 @@ class Vision:
         self.direction = "Blue"
 
     def blue_det(self):
-        lower_blue = np.array([90,50,120])
+        lower_blue = np.array([100,50,120])
         upper_blue = np.array([150,255,255])
         blue_mask = cv2.inRange(self.frame_HSV, lower_blue, upper_blue)
         return blue_mask
     
     def yellow_det(self):
-        lower_yellow = np.array([15,50,100])
+        lower_yellow = np.array([23,50,100])
         upper_yellow = np.array([50,255,255])
         yellow_mask = cv2.inRange(self.frame_HSV, lower_yellow, upper_yellow)
         return yellow_mask
@@ -83,23 +83,18 @@ class Vision:
                 # Store for later use
                 blue_mask = self.blue_det()
                 yellow_mask = self.yellow_det()
-                green_mask = self.green_det()
 
                 # Just before contour detection:
-                roi_height = self.height // 4  # Use the bottom third
+                roi_height = self.height // 6  # Use the bottom third
                 blue_mask_roi = blue_mask[-roi_height:, :]
                 yellow_mask_roi = yellow_mask[-roi_height:, :]
-                green_mask_roi =  green_mask[-roi_height:, :]
 
                 # Find contours for blue and yellow masks
                 contours_blue, _ = cv2.findContours(blue_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 contours_yellow, _ = cv2.findContours(yellow_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                contours_green, _ = cv2.findContours(green_mask_roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 blue_x = None
                 yellow_x = None
-                green_x = None
-                green = None
 
                 # Find the largest blue contour (right line)
                 if contours_blue:
@@ -115,19 +110,9 @@ class Vision:
                     M_yellow = cv2.moments(largest_yellow)
                     if M_yellow["m00"] != 0:
                         yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
-
-                if contours_green:
-                    largest_yellow = max(contours_yellow, key=cv2.contourArea)
-                    M_yellow = cv2.moments(largest_yellow)
-                    if M_yellow["m00"] != 0:
-                        green_x = int(M_yellow["m10"] / M_yellow["m00"])
-                
                 try:
                     # Decide steering
-                    if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
-                        self.drive(DRIVE_STOP)
-                        break
-                    elif blue_x is not None and yellow_x is not None:
+                    if blue_x is not None and yellow_x is not None:
                         print("Straight")
                         center = (blue_x + yellow_x) // 2
                         frame_center = self.width // 2

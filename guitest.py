@@ -44,7 +44,7 @@ class HSVAdjuster:
         return np.array([lh, ls, lv]), np.array([uh, us, uv])
 
     def run(self):
-        cap = cv2.VideoCapture(0)  # Use 0 or 1 depending on your camera
+        cap = cv2.VideoCapture(1)  # Use 0 or 1 depending on your camera
         print("Press 'b' (Blue), 'y' (Yellow), 'g' (Green), 'p' (Purple) to switch colors.")
         print("Press 'q' to quit.")
 
