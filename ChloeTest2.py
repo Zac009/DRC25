@@ -117,11 +117,11 @@ class Vision:
                         yellow_x = int(M_yellow["m10"] / M_yellow["m00"])
 
                 if contours_green:
-                    largest_yellow = max(contours_yellow, key=cv2.contourArea)
-                    M_yellow = cv2.moments(largest_yellow)
-                    if M_yellow["m00"] != 0:
-                        green_x = int(M_yellow["m10"] / M_yellow["m00"])
-                
+                    largest_green = max(contours_green, key=cv2.contourArea)
+                    M_green = cv2.moments(largest_green)
+                    if M_green["m00"] != 0:
+                        green_x = int(M_green["m10"] / M_green["m00"])
+
                 try:
                     # Decide steering
                     if green_x is not None and green_x < self.width * 0.6 and green_x > self.width * 0.3:
